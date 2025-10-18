@@ -1,0 +1,145 @@
+import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Plane, User, LogOut, Map, Sparkles, Menu, X } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { Session } from "@supabase/supabase-js";
+import { toast } from "sonner";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+
+const Navbar = () => {
+  const navigate = useNavigate();
+  const [session, setSession] = useState<Session | null>(null);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+    });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    toast.success("Logged out successfully");
+    navigate("/");
+  };
+
+  return (
+    <nav className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="container flex h-16 items-center justify-between">
+        <Link to="/" className="flex items-center gap-2 group">
+          <div className="p-2 bg-gradient-to-br from-primary to-accent rounded-lg shadow-md group-hover:shadow-lg transition-shadow">
+            <Plane className="w-5 h-5 text-primary-foreground" />
+          </div>
+          <span className="text-xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+            Wanderer
+          </span>
+        </Link>
+
+        <div className="hidden md:flex items-center gap-6">
+          <Link to="/explore" className="text-sm font-medium hover:text-primary transition-colors">
+            Explore
+          </Link>
+          {session && (
+            <Link to="/itinerary" className="text-sm font-medium hover:text-primary transition-colors flex items-center gap-1">
+              <Sparkles className="w-4 h-4" />
+              Build Itinerary
+            </Link>
+          )}
+          <Link to="/map" className="text-sm font-medium hover:text-primary transition-colors flex items-center gap-1">
+            <Map className="w-4 h-4" />
+            Map
+          </Link>
+        </div>
+
+        <div className="flex items-center gap-3">
+          {session ? (
+            <>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="rounded-full">
+                    <User className="w-5 h-5" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => navigate("/dashboard")}>
+                    Dashboard
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleLogout}>
+                    <LogOut className="w-4 h-4 mr-2" />
+                    Logout
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </>
+          ) : (
+            <Button onClick={() => navigate("/auth")} className="hidden md:flex">
+              Get Started
+            </Button>
+          )}
+
+          <Button
+            variant="ghost"
+            size="icon"
+            className="md:hidden"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+          >
+            {isMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          </Button>
+        </div>
+      </div>
+
+      {isMenuOpen && (
+        <div className="md:hidden border-t border-border/40 bg-background/95 backdrop-blur">
+          <div className="container py-4 space-y-3">
+            <Link
+              to="/explore"
+              className="block px-4 py-2 text-sm font-medium hover:bg-muted rounded-lg"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Explore
+            </Link>
+            {session && (
+              <Link
+                to="/itinerary"
+                className="block px-4 py-2 text-sm font-medium hover:bg-muted rounded-lg"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                <Sparkles className="w-4 h-4 inline mr-2" />
+                Build Itinerary
+              </Link>
+            )}
+            <Link
+              to="/map"
+              className="block px-4 py-2 text-sm font-medium hover:bg-muted rounded-lg"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              <Map className="w-4 h-4 inline mr-2" />
+              Map
+            </Link>
+            {!session && (
+              <Button onClick={() => navigate("/auth")} className="w-full">
+                Get Started
+              </Button>
+            )}
+          </div>
+        </div>
+      )}
+    </nav>
+  );
+};
+
+export default Navbar;
