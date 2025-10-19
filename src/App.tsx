@@ -8,6 +8,7 @@ import Auth from "./pages/Auth";
 import Explore from "./pages/Explore";
 import Itinerary from "./pages/Itinerary";
 import Dashboard from "./pages/Dashboard";
+import AdminDashboard from "./pages/AdminDashboard";
 import MapPage from "./pages/MapPage";
 import NotFound from "./pages/NotFound";
 
@@ -25,6 +26,7 @@ const App = () => (
           <Route path="/explore" element={<Explore />} />
           <Route path="/itinerary" element={<Itinerary />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/map" element={<MapPage />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

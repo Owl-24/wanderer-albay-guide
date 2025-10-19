@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import Navbar from "@/components/Navbar";
 import { Sparkles, Mountain, UtensilsCrossed, Church, Waves, MapPin, ArrowRight } from "lucide-react";
 import heroImage from "@/assets/hero-mayon.jpg";
@@ -67,9 +66,6 @@ const Index = () => {
         </div>
         
         <div className="relative z-10 text-center px-4 max-w-4xl mx-auto animate-fade-in">
-          <Badge variant="secondary" className="mb-4 bg-primary/20 text-primary-foreground backdrop-blur-sm">
-            Powered by AI
-          </Badge>
           <h1 className="text-5xl md:text-7xl font-bold mb-6 text-foreground drop-shadow-lg">
             Explore Albay <br />
             <span className="bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent">
