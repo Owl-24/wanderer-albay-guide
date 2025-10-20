@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -19,6 +20,7 @@ interface TouristSpot {
 }
 
 const Explore = () => {
+  const navigate = useNavigate();
   const [spots, setSpots] = useState<TouristSpot[]>([]);
   const [filteredSpots, setFilteredSpots] = useState<TouristSpot[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -129,6 +131,7 @@ const Explore = () => {
               <Card
                 key={spot.id}
                 className="overflow-hidden hover:shadow-xl transition-all hover:scale-105 cursor-pointer"
+                onClick={() => navigate(`/spot/${spot.id}`)}
               >
                 {spot.image_url && (
                   <div className="h-48 overflow-hidden bg-muted">

@@ -8,6 +8,9 @@ import { Shield } from "lucide-react";
 import ManageSpots from "@/components/admin/ManageSpots";
 import ManageRestaurants from "@/components/admin/ManageRestaurants";
 import ManageEvents from "@/components/admin/ManageEvents";
+import UserManagement from "@/components/admin/UserManagement";
+import Analytics from "@/components/admin/Analytics";
+import ReviewManagement from "@/components/admin/ReviewManagement";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();

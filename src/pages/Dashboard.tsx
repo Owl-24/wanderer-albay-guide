@@ -4,10 +4,12 @@ import Navbar from "@/components/Navbar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { ProfileEditor } from "@/components/profile/ProfileEditor";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { Session } from "@supabase/supabase-js";
 import { toast } from "sonner";
-import { MapPin, Trash2, Calendar, Sparkles } from "lucide-react";
+import { MapPin, Trash2, Calendar, Sparkles, Edit } from "lucide-react";
 
 interface Itinerary {
   id: string;
@@ -87,13 +89,35 @@ const Dashboard = () => {
 
       <div className="container py-12">
         <div className="max-w-5xl mx-auto">
-          <div className="mb-12 animate-fade-in">
-            <h1 className="text-4xl md:text-5xl font-bold mb-2">
-              Welcome back, <span className="text-primary">{profile?.full_name || "Traveler"}</span>
-            </h1>
-            <p className="text-lg text-muted-foreground">
-              Manage your travel plans and explore new destinations
-            </p>
+          <div className="mb-12 animate-fade-in flex items-start justify-between">
+            <div>
+              <h1 className="text-4xl md:text-5xl font-bold mb-2">
+                Welcome back, <span className="text-primary">{profile?.full_name || "Traveler"}</span>
+              </h1>
+              <p className="text-lg text-muted-foreground">
+                Manage your travel plans and explore new destinations
+              </p>
+            </div>
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button variant="outline" className="hidden md:flex">
+                  <Edit className="w-4 h-4 mr-2" />
+                  Edit Profile
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Edit Profile</DialogTitle>
+                </DialogHeader>
+                {session && (
+                  <ProfileEditor
+                    userId={session.user.id}
+                    currentName={profile?.full_name || null}
+                    onProfileUpdated={() => fetchProfile(session.user.id)}
+                  />
+                )}
+              </DialogContent>
+            </Dialog>
           </div>
 
           {/* Quick Actions */}

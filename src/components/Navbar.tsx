@@ -5,6 +5,7 @@ import { Plane, User, LogOut, Map, Sparkles, Menu, X, Shield } from "lucide-reac
 import { supabase } from "@/integrations/supabase/client";
 import { Session } from "@supabase/supabase-js";
 import { toast } from "sonner";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -67,24 +68,27 @@ const Navbar = () => {
           </span>
         </Link>
 
-        <div className="hidden md:flex items-center gap-6">
-          <Link to="/explore" className="text-sm font-medium hover:text-primary transition-colors">
-            Explore
-          </Link>
+        <div className="flex items-center gap-4">
+          <div className="hidden md:flex items-center gap-6">
+            <Link to="/explore" className="text-sm font-medium hover:text-primary transition-colors">
+              Explore
+            </Link>
           {session && (
             <Link to="/itinerary" className="text-sm font-medium hover:text-primary transition-colors flex items-center gap-1">
               <Sparkles className="w-4 h-4" />
               Build Itinerary
             </Link>
           )}
-          <Link to="/map" className="text-sm font-medium hover:text-primary transition-colors flex items-center gap-1">
-            <Map className="w-4 h-4" />
-            Map
-          </Link>
-        </div>
+            <Link to="/map" className="text-sm font-medium hover:text-primary transition-colors flex items-center gap-1">
+              <Map className="w-4 h-4" />
+              Map
+            </Link>
+          </div>
 
-        <div className="flex items-center gap-3">
-          {session ? (
+          <ThemeToggle />
+
+          <div className="flex items-center gap-3">
+            {session ? (
             <>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -110,19 +114,20 @@ const Navbar = () => {
               </DropdownMenu>
             </>
           ) : (
-            <Button onClick={() => navigate("/auth")} className="hidden md:flex">
-              Get Started
-            </Button>
-          )}
+              <Button onClick={() => navigate("/auth")} className="hidden md:flex">
+                Get Started
+              </Button>
+            )}
 
-          <Button
-            variant="ghost"
-            size="icon"
-            className="md:hidden"
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-          >
-            {isMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-          </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="md:hidden"
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+            >
+              {isMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </Button>
+          </div>
         </div>
       </div>
 
