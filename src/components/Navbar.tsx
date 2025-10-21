@@ -40,13 +40,18 @@ const Navbar = () => {
   }, []);
 
   const checkAdminRole = async (userId: string) => {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("user_roles")
       .select("role")
       .eq("user_id", userId)
       .eq("role", "admin")
       .maybeSingle();
     
+    if (error) {
+      console.error("Error checking admin role:", error);
+    }
+    
+    console.log("Admin check result:", { userId, hasAdminRole: !!data });
     setIsAdmin(!!data);
   };
 
@@ -142,14 +147,26 @@ const Navbar = () => {
               Explore
             </Link>
             {session && (
-              <Link
-                to="/itinerary"
-                className="block px-4 py-2 text-sm font-medium hover:bg-muted rounded-lg"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                <Sparkles className="w-4 h-4 inline mr-2" />
-                Build Itinerary
-              </Link>
+              <>
+                <Link
+                  to="/itinerary"
+                  className="block px-4 py-2 text-sm font-medium hover:bg-muted rounded-lg"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  <Sparkles className="w-4 h-4 inline mr-2" />
+                  Build Itinerary
+                </Link>
+                {isAdmin && (
+                  <Link
+                    to="/admin"
+                    className="block px-4 py-2 text-sm font-medium hover:bg-muted rounded-lg"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    <Shield className="w-4 h-4 inline mr-2" />
+                    Admin Panel
+                  </Link>
+                )}
+              </>
             )}
             <Link
               to="/map"
@@ -159,6 +176,12 @@ const Navbar = () => {
               <Map className="w-4 h-4 inline mr-2" />
               Map
             </Link>
+            {session && (
+              <Button onClick={handleLogout} variant="outline" className="w-full">
+                <LogOut className="w-4 h-4 mr-2" />
+                Logout
+              </Button>
+            )}
             {!session && (
               <Button onClick={() => navigate("/auth")} className="w-full">
                 Get Started
