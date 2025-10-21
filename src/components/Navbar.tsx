@@ -43,16 +43,15 @@ const Navbar = () => {
     const { data, error } = await supabase
       .from("user_roles")
       .select("role")
-      .eq("user_id", userId)
-      .eq("role", "admin")
-      .maybeSingle();
+      .eq("user_id", userId);
     
     if (error) {
       console.error("Error checking admin role:", error);
     }
     
-    console.log("Admin check result:", { userId, hasAdminRole: !!data });
-    setIsAdmin(!!data);
+    const hasAdmin = data?.some(role => role.role === 'admin');
+    console.log("Admin check result:", { userId, hasAdminRole: hasAdmin });
+    setIsAdmin(hasAdmin || false);
   };
 
   const handleLogout = async () => {
