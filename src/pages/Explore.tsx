@@ -5,8 +5,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
-import { MapPin, Search, Star } from "lucide-react";
+import { MapPin, Search, Star, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+import { Session } from "@supabase/supabase-js";
 
 interface TouristSpot {
   id: string;
@@ -25,9 +27,21 @@ const Explore = () => {
   const [filteredSpots, setFilteredSpots] = useState<TouristSpot[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
 
   useEffect(() => {
     fetchSpots();
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+    });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
   useEffect(() => {
@@ -75,6 +89,29 @@ const Explore = () => {
       Heritage: "bg-purple-500 text-white",
     };
     return colors[category] || "bg-muted";
+  };
+
+  const addToItinerary = async (spot: TouristSpot, e: React.MouseEvent) => {
+    e.stopPropagation();
+    
+    if (!session?.user) {
+      toast.error("Please sign in to add to itinerary");
+      navigate("/auth");
+      return;
+    }
+
+    const { error } = await supabase.from("itineraries").insert([{
+      user_id: session.user.id,
+      name: `Quick Trip - ${spot.name}`,
+      selected_categories: spot.category,
+      spots: [spot] as any,
+    }]);
+
+    if (error) {
+      toast.error("Failed to add to itinerary");
+    } else {
+      toast.success("Added to your itinerary!");
+    }
   };
 
   return (
@@ -130,7 +167,7 @@ const Explore = () => {
             filteredSpots.map((spot) => (
               <Card
                 key={spot.id}
-                className="overflow-hidden hover:shadow-xl transition-all hover:scale-105 cursor-pointer"
+                className="overflow-hidden hover:shadow-xl transition-all hover:scale-105 cursor-pointer relative group"
                 onClick={() => navigate(`/spot/${spot.id}`)}
               >
                 {spot.image_url && (
@@ -142,6 +179,14 @@ const Explore = () => {
                     />
                   </div>
                 )}
+                <Button
+                  size="icon"
+                  className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity z-10 bg-background/90 backdrop-blur-sm hover:bg-background"
+                  onClick={(e) => addToItinerary(spot, e)}
+                  title="Add to itinerary"
+                >
+                  <Plus className="w-4 h-4" />
+                </Button>
                 <CardHeader>
                   <CardTitle className="flex items-start justify-between gap-2">
                     <span className="line-clamp-2">{spot.name}</span>
