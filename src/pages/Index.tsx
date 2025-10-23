@@ -37,18 +37,32 @@ const Index = () => {
       title: "Smart Recommendations",
       description: "AI-powered itinerary suggestions based on your interests",
       icon: Sparkles,
+      route: "/itinerary",
+      requiresAuth: true,
     },
     {
       title: "Interactive Maps",
       description: "Explore Albay's tourist spots with detailed location guides",
       icon: MapPin,
+      route: "/map",
+      requiresAuth: false,
     },
     {
       title: "Local Insights",
       description: "Discover hidden gems and authentic experiences",
       icon: Mountain,
+      route: "/explore",
+      requiresAuth: false,
     },
   ];
+
+  const handleFeatureClick = (route: string, requiresAuth: boolean) => {
+    if (requiresAuth && !isAuthenticated) {
+      navigate("/auth");
+    } else {
+      navigate(route);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -143,13 +157,21 @@ const Index = () => {
             {features.map((feature) => {
               const Icon = feature.icon;
               return (
-                <Card key={feature.title} className="border-2 hover:border-primary/50 transition-all">
+                <Card 
+                  key={feature.title} 
+                  className="border-2 hover:border-primary/50 transition-all cursor-pointer hover:scale-105 hover:shadow-xl group"
+                  onClick={() => handleFeatureClick(feature.route, feature.requiresAuth)}
+                >
                   <CardContent className="p-8 text-center">
-                    <div className="mx-auto w-20 h-20 rounded-2xl bg-gradient-to-br from-primary to-accent flex items-center justify-center mb-6 shadow-xl">
+                    <div className="mx-auto w-20 h-20 rounded-2xl bg-gradient-to-br from-primary to-accent flex items-center justify-center mb-6 shadow-xl group-hover:shadow-2xl transition-shadow">
                       <Icon className="w-10 h-10 text-primary-foreground" />
                     </div>
-                    <h3 className="text-xl font-bold mb-3">{feature.title}</h3>
+                    <h3 className="text-xl font-bold mb-3 group-hover:text-primary transition-colors">{feature.title}</h3>
                     <p className="text-muted-foreground">{feature.description}</p>
+                    <div className="mt-4 flex items-center justify-center gap-2 text-primary opacity-0 group-hover:opacity-100 transition-opacity">
+                      <span className="text-sm font-medium">Learn more</span>
+                      <ArrowRight className="w-4 h-4" />
+                    </div>
                   </CardContent>
                 </Card>
               );
