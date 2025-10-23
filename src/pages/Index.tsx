@@ -32,6 +32,14 @@ const Index = () => {
     { icon: UtensilsCrossed, label: "Food", color: "from-orange-500 to-orange-400" },
   ];
 
+  const handleCategoryClick = (category: string) => {
+    if (!isAuthenticated) {
+      navigate("/auth");
+    } else {
+      navigate("/itinerary", { state: { preselectedCategory: category } });
+    }
+  };
+
   const features = [
     {
       title: "Smart Recommendations",
@@ -129,13 +137,14 @@ const Index = () => {
               return (
                 <Card
                   key={category.label}
-                  className="cursor-pointer transition-all hover:scale-105 hover:shadow-lg border-2 hover:border-primary/50"
+                  className="cursor-pointer transition-all hover:scale-105 hover:shadow-lg border-2 hover:border-primary/50 group"
+                  onClick={() => handleCategoryClick(category.label)}
                 >
                   <CardContent className="p-6 text-center">
-                    <div className={`mx-auto w-16 h-16 rounded-full bg-gradient-to-br ${category.color} flex items-center justify-center mb-4 shadow-lg`}>
+                    <div className={`mx-auto w-16 h-16 rounded-full bg-gradient-to-br ${category.color} flex items-center justify-center mb-4 shadow-lg group-hover:shadow-xl transition-shadow`}>
                       <Icon className="w-8 h-8 text-white" />
                     </div>
-                    <h3 className="font-semibold text-lg">{category.label}</h3>
+                    <h3 className="font-semibold text-lg group-hover:text-primary transition-colors">{category.label}</h3>
                   </CardContent>
                 </Card>
               );

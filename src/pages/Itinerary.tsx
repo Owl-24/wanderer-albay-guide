@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -22,6 +22,7 @@ interface TouristSpot {
 
 const Itinerary = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [session, setSession] = useState<Session | null>(null);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [recommendedSpots, setRecommendedSpots] = useState<TouristSpot[]>([]);
@@ -48,6 +49,13 @@ const Itinerary = () => {
 
     return () => subscription.unsubscribe();
   }, [navigate]);
+
+  useEffect(() => {
+    const preselectedCategory = location.state?.preselectedCategory;
+    if (preselectedCategory && !selectedCategories.includes(preselectedCategory)) {
+      setSelectedCategories([preselectedCategory]);
+    }
+  }, [location.state]);
 
   const categories = [
     { name: "Nature", icon: "🌳", description: "Mountains, lakes, and natural wonders" },
