@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Plane, User, LogOut, Map, Sparkles, Menu, X, Shield } from "lucide-react";
+import { Plane, User, LogOut, Map, Sparkles, Menu, X, Shield, Cloud } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Session } from "@supabase/supabase-js";
 import { toast } from "sonner";
@@ -12,6 +12,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+
+// ✅ Import AlertDialog and Alert
+import {
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
+} from "@/components/ui/alert-dialog";
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -44,13 +51,12 @@ const Navbar = () => {
       .from("user_roles")
       .select("role")
       .eq("user_id", userId);
-    
+
     if (error) {
       console.error("Error checking admin role:", error);
     }
-    
-    const hasAdmin = data?.some(role => role.role === 'admin');
-    console.log("Admin check result:", { userId, hasAdminRole: hasAdmin });
+
+    const hasAdmin = data?.some((role) => role.role === "admin");
     setIsAdmin(hasAdmin || false);
   };
 
@@ -63,6 +69,7 @@ const Navbar = () => {
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between">
+        {/* === LEFT SIDE: Logo === */}
         <Link to="/" className="flex items-center gap-2 group">
           <div className="p-2 bg-gradient-to-br from-primary to-accent rounded-lg shadow-md group-hover:shadow-lg transition-shadow">
             <Plane className="w-5 h-5 text-primary-foreground" />
@@ -72,57 +79,83 @@ const Navbar = () => {
           </span>
         </Link>
 
+        {/* === CENTER LINKS === */}
         <div className="flex items-center gap-4">
           <div className="hidden md:flex items-center gap-6">
-            <Link to="/explore" className="text-sm font-medium hover:text-primary transition-colors">
+            <Link
+              to="/explore"
+              className="text-sm font-medium hover:text-primary transition-colors"
+            >
               Explore
             </Link>
-          {session && (
-            <Link to="/itinerary" className="text-sm font-medium hover:text-primary transition-colors flex items-center gap-1">
-              <Sparkles className="w-4 h-4" />
-              Build Itinerary
-            </Link>
-          )}
-            <Link to="/map" className="text-sm font-medium hover:text-primary transition-colors flex items-center gap-1">
+
+            {/* ✅ WEATHER BUTTON HERE */}
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <button className="text-sm font-medium hover:text-primary transition-colors flex items-center gap-1">
+                  <Cloud className="w-4 h-4" />
+                  Weather
+                </button>
+              </AlertDialogTrigger>
+              <AlertDialogContent />
+            </AlertDialog>
+
+            {session && (
+              <Link
+                to="/itinerary"
+                className="text-sm font-medium hover:text-primary transition-colors flex items-center gap-1"
+              >
+                <Sparkles className="w-4 h-4" />
+                Build Itinerary
+              </Link>
+            )}
+
+            <Link
+              to="/map"
+              className="text-sm font-medium hover:text-primary transition-colors flex items-center gap-1"
+            >
               <Map className="w-4 h-4" />
               Map
             </Link>
           </div>
 
+          {/* === THEME TOGGLE === */}
           <ThemeToggle />
 
+          {/* === RIGHT SIDE USER MENU === */}
           <div className="flex items-center gap-3">
             {session ? (
-            <>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="rounded-full">
-                    <User className="w-5 h-5" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => navigate("/dashboard")}>
-                    Dashboard
-                  </DropdownMenuItem>
-                  {isAdmin && (
-                    <DropdownMenuItem onClick={() => navigate("/admin")}>
-                      <Shield className="w-4 h-4 mr-2" />
-                      Admin Panel
+              <>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon" className="rounded-full">
+                      <User className="w-5 h-5" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={() => navigate("/dashboard")}>
+                      Dashboard
                     </DropdownMenuItem>
-                  )}
-                  <DropdownMenuItem onClick={handleLogout}>
-                    <LogOut className="w-4 h-4 mr-2" />
-                    Logout
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </>
-          ) : (
+                    {isAdmin && (
+                      <DropdownMenuItem onClick={() => navigate("/admin")}>
+                        <Shield className="w-4 h-4 mr-2" />
+                        Admin Panel
+                      </DropdownMenuItem>
+                    )}
+                    <DropdownMenuItem onClick={handleLogout}>
+                      <LogOut className="w-4 h-4 mr-2" />
+                      Logout
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </>
+            ) : (
               <Button onClick={() => navigate("/auth")} className="hidden md:flex">
                 Get Started
               </Button>
             )}
 
+            {/* Mobile menu toggle */}
             <Button
               variant="ghost"
               size="icon"
@@ -135,6 +168,7 @@ const Navbar = () => {
         </div>
       </div>
 
+      {/* === MOBILE MENU === */}
       {isMenuOpen && (
         <div className="md:hidden border-t border-border/40 bg-background/95 backdrop-blur">
           <div className="container py-4 space-y-3">
@@ -145,6 +179,18 @@ const Navbar = () => {
             >
               Explore
             </Link>
+
+            {/* ✅ WEATHER button inside mobile menu too */}
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <button className="block w-full text-left px-4 py-2 text-sm font-medium hover:bg-muted rounded-lg flex items-center gap-2">
+                  <Cloud className="w-4 h-4" />
+                  Weather
+                </button>
+              </AlertDialogTrigger>
+              <AlertDialogContent />
+            </AlertDialog>
+
             {session && (
               <>
                 <Link
@@ -167,6 +213,7 @@ const Navbar = () => {
                 )}
               </>
             )}
+
             <Link
               to="/map"
               className="block px-4 py-2 text-sm font-medium hover:bg-muted rounded-lg"
@@ -175,6 +222,7 @@ const Navbar = () => {
               <Map className="w-4 h-4 inline mr-2" />
               Map
             </Link>
+
             {session && (
               <Button onClick={handleLogout} variant="outline" className="w-full">
                 <LogOut className="w-4 h-4 mr-2" />
