@@ -231,14 +231,25 @@ const ManageSpots = () => {
                   {availableCategories.map((category) => (
                     <div
                       key={category}
-                      className="flex items-center space-x-2 p-3 border rounded-lg cursor-pointer hover:bg-muted"
-                      onClick={() => toggleCategory(category)}
+                      className="flex items-center space-x-2 p-3 border rounded-lg hover:bg-muted"
                     >
                       <Checkbox
                         checked={formData.categories.includes(category)}
-                        onCheckedChange={() => toggleCategory(category)}
+                        onCheckedChange={(checked) => {
+                          if (checked) {
+                            setFormData((prev) => ({
+                              ...prev,
+                              categories: [...prev.categories, category],
+                            }));
+                          } else {
+                            setFormData((prev) => ({
+                              ...prev,
+                              categories: prev.categories.filter((c) => c !== category),
+                            }));
+                          }
+                        }}
                       />
-                      <label className="cursor-pointer">{category}</label>
+                      <label className="cursor-pointer select-none">{category}</label>
                     </div>
                   ))}
                 </div>
