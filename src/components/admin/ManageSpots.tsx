@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -17,6 +17,13 @@ import {
 import { toast } from "sonner";
 import { Plus, Pencil, Trash2, MapPin, Loader2 } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
 
 interface TouristSpot {
   id: string;
@@ -29,11 +36,23 @@ interface TouristSpot {
   image_url: string | null;
 }
 
+interface Municipality {
+  code: string;
+  name: string;
+}
+
+interface Barangay {
+  code: string;
+  name: string;
+}
+
 const ManageSpots = () => {
   const [spots, setSpots] = useState<TouristSpot[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingSpot, setEditingSpot] = useState<TouristSpot | null>(null);
+  const [municipalities, setMunicipalities] = useState<Municipality[]>([]);
+  const [barangays, setBarangays] = useState<Barangay[]>([]);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -49,6 +68,7 @@ const ManageSpots = () => {
 
   useEffect(() => {
     fetchSpots();
+    fetchMunicipalities();
   }, []);
 
   const fetchSpots = async () => {
@@ -57,9 +77,70 @@ const ManageSpots = () => {
       .select("*")
       .order("name");
 
-    if (!error && data) {
-      setSpots(data);
+    if (!error && data) setSpots(data);
+  };
+
+  /** ✅ Fetch both municipalities and component cities for Albay */
+  const fetchMunicipalities = async () => {
+    try {
+      const [muniRes, cityRes] = await Promise.all([
+        fetch("https://psgc.gitlab.io/api/provinces/050500000/municipalities/"),
+        fetch("https://psgc.gitlab.io/api/provinces/050500000/cities/"),
+      ]);
+
+      const [muniData, cityData] = await Promise.all([
+        muniRes.json(),
+        cityRes.json(),
+      ]);
+
+      const merged = [...(muniData || []), ...(cityData || [])];
+
+      if (Array.isArray(merged)) {
+        const sorted = merged
+          .map((m: any) => ({ code: m.code, name: m.name }))
+          .sort((a, b) => a.name.localeCompare(b.name));
+        setMunicipalities(sorted);
+      } else {
+        toast.error("Unexpected data format for municipalities/cities");
+      }
+    } catch (error) {
+      console.error("Error fetching municipalities and cities:", error);
+      toast.error("Failed to load municipalities and cities");
     }
+  };
+
+  /** ✅ Fetch barangays for both municipality & city codes */
+  const fetchBarangays = async (code: string) => {
+    try {
+      let response = await fetch(`https://psgc.gitlab.io/api/municipalities/${code}/barangays/`);
+      if (!response.ok) {
+        response = await fetch(`https://psgc.gitlab.io/api/cities/${code}/barangays/`);
+      }
+      const data = await response.json();
+
+      if (Array.isArray(data)) {
+        const sorted = data
+          .map((b: any) => ({ code: b.code, name: b.name }))
+          .sort((a, b) => a.name.localeCompare(b.name));
+        setBarangays(sorted);
+      } else {
+        toast.error("Unexpected data format for barangays");
+      }
+    } catch (error) {
+      console.error("Error fetching barangays:", error);
+      toast.error("Failed to load barangays");
+    }
+  };
+
+  const handleMunicipalityChange = (code: string) => {
+    const selectedMunicipality = municipalities.find((m) => m.code === code);
+    setFormData((prev) => ({
+      ...prev,
+      municipality: selectedMunicipality?.name || "",
+      location: "",
+    }));
+    setBarangays([]);
+    if (code) fetchBarangays(code);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -76,29 +157,15 @@ const ManageSpots = () => {
       category: formData.categories,
     };
 
-    if (editingSpot) {
-      const { error } = await supabase
-        .from("tourist_spots")
-        .update(spotData)
-        .eq("id", editingSpot.id);
+    const { error } = editingSpot
+      ? await supabase.from("tourist_spots").update(spotData).eq("id", editingSpot.id)
+      : await supabase.from("tourist_spots").insert([spotData]);
 
-      if (error) {
-        toast.error("Failed to update spot");
-      } else {
-        toast.success("Spot updated successfully");
-        resetForm();
-        fetchSpots();
-      }
-    } else {
-      const { error } = await supabase.from("tourist_spots").insert([spotData]);
-
-      if (error) {
-        toast.error("Failed to add spot");
-      } else {
-        toast.success("Spot added successfully");
-        resetForm();
-        fetchSpots();
-      }
+    if (error) toast.error(`Failed to ${editingSpot ? "update" : "add"} spot`);
+    else {
+      toast.success(`Spot ${editingSpot ? "updated" : "added"} successfully`);
+      resetForm();
+      fetchSpots();
     }
 
     setIsLoading(false);
@@ -109,9 +176,8 @@ const ManageSpots = () => {
 
     const { error } = await supabase.from("tourist_spots").delete().eq("id", id);
 
-    if (error) {
-      toast.error("Failed to delete spot");
-    } else {
+    if (error) toast.error("Failed to delete spot");
+    else {
       toast.success("Spot deleted successfully");
       fetchSpots();
     }
@@ -141,6 +207,7 @@ const ManageSpots = () => {
       image_url: "",
       categories: [],
     });
+    setBarangays([]);
     setEditingSpot(null);
     setIsDialogOpen(false);
   };
@@ -182,49 +249,93 @@ const ManageSpots = () => {
                   required
                 />
               </div>
+
+              {/* Municipality/City Dropdown */}
               <div>
-                <Label htmlFor="location">Location *</Label>
-                <Input
-                  id="location"
-                  value={formData.location}
-                  onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                  required
-                />
+                <Label>Municipality or City *</Label>
+                <Select
+                  onValueChange={handleMunicipalityChange}
+                  value={
+                    municipalities.find((m) => m.name === formData.municipality)?.code || ""
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select municipality or city" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {municipalities.map((m) => (
+                      <SelectItem key={m.code} value={m.code}>
+                        {m.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
+
+              {/* Barangay (Location) Dropdown */}
               <div>
-                <Label htmlFor="municipality">Municipality</Label>
-                <Input
-                  id="municipality"
-                  value={formData.municipality}
-                  onChange={(e) => setFormData({ ...formData, municipality: e.target.value })}
-                />
+                <Label>Location (Barangay) *</Label>
+                <Select
+                  onValueChange={(code) => {
+                    const barangay = barangays.find((b) => b.code === code);
+                    setFormData((prev) => ({ ...prev, location: barangay?.name || "" }));
+                  }}
+                  value={
+                    barangays.find((b) => b.name === formData.location)?.code || ""
+                  }
+                  disabled={!barangays.length}
+                >
+                  <SelectTrigger>
+                    <SelectValue
+                      placeholder={
+                        barangays.length
+                          ? "Select a barangay"
+                          : "Select municipality first"
+                      }
+                    />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {barangays.map((b) => (
+                      <SelectItem key={b.code} value={b.code}>
+                        {b.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
+
               <div>
-                <Label htmlFor="description">Description</Label>
+                <Label>Description</Label>
                 <Textarea
-                  id="description"
                   value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, description: e.target.value })
+                  }
                   rows={3}
                 />
               </div>
+
               <div>
-                <Label htmlFor="contact">Contact Number</Label>
+                <Label>Contact Number</Label>
                 <Input
-                  id="contact"
                   value={formData.contact_number}
-                  onChange={(e) => setFormData({ ...formData, contact_number: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, contact_number: e.target.value })
+                  }
                 />
               </div>
+
               <div>
-                <Label htmlFor="image">Image URL</Label>
+                <Label>Image URL</Label>
                 <Input
-                  id="image"
                   value={formData.image_url}
-                  onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, image_url: e.target.value })
+                  }
                   placeholder="https://..."
                 />
               </div>
+
               <div>
                 <Label className="mb-3 block">Categories *</Label>
                 <div className="grid grid-cols-2 gap-3">
@@ -235,27 +346,19 @@ const ManageSpots = () => {
                     >
                       <Checkbox
                         checked={formData.categories.includes(category)}
-                        onCheckedChange={(checked) => {
-                          if (checked) {
-                            setFormData((prev) => ({
-                              ...prev,
-                              categories: [...prev.categories, category],
-                            }));
-                          } else {
-                            setFormData((prev) => ({
-                              ...prev,
-                              categories: prev.categories.filter((c) => c !== category),
-                            }));
-                          }
-                        }}
+                        onCheckedChange={() => toggleCategory(category)}
                       />
                       <label className="cursor-pointer select-none">{category}</label>
                     </div>
                   ))}
                 </div>
               </div>
+
               <div className="flex gap-3 pt-4">
-                <Button type="submit" disabled={isLoading || formData.categories.length === 0}>
+                <Button
+                  type="submit"
+                  disabled={isLoading || formData.categories.length === 0}
+                >
                   {isLoading ? (
                     <>
                       <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -283,10 +386,12 @@ const ManageSpots = () => {
                   <CardTitle className="mb-2">{spot.name}</CardTitle>
                   <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
                     <MapPin className="w-4 h-4" />
-                    {spot.location}
+                    {spot.location}, {spot.municipality}
                   </div>
                   {spot.description && (
-                    <p className="text-sm text-muted-foreground mb-2">{spot.description}</p>
+                    <p className="text-sm text-muted-foreground mb-2">
+                      {spot.description}
+                    </p>
                   )}
                   <div className="flex flex-wrap gap-2">
                     {spot.category.map((cat) => (

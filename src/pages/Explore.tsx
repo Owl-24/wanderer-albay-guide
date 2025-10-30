@@ -179,14 +179,14 @@ const Explore = () => {
                     />
                   </div>
                 )}
-                <Button
+                {/* <Button
                   size="icon"
                   className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity z-10 bg-background/90 backdrop-blur-sm hover:bg-background"
                   onClick={(e) => addToItinerary(spot, e)}
                   title="Add to itinerary"
                 >
                   <Plus className="w-4 h-4" />
-                </Button>
+                </Button> */}
                 <CardHeader>
                   <CardTitle className="flex items-start justify-between gap-2">
                     <span className="line-clamp-2">{spot.name}</span>

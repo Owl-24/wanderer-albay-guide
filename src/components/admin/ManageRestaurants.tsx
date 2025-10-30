@@ -15,6 +15,13 @@ import {
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { Plus, Pencil, Trash2, UtensilsCrossed, Loader2 } from "lucide-react";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
 
 interface Restaurant {
   id: string;
@@ -26,15 +33,28 @@ interface Restaurant {
   image_url: string | null;
 }
 
+interface Municipality {
+  code: string;
+  name: string;
+}
+
+interface Barangay {
+  code: string;
+  name: string;
+}
+
 const ManageRestaurants = () => {
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingRestaurant, setEditingRestaurant] = useState<Restaurant | null>(null);
 
+  const [municipalities, setMunicipalities] = useState<Municipality[]>([]);
+  const [barangays, setBarangays] = useState<Barangay[]>([]);
+
   const [formData, setFormData] = useState({
     name: "",
-    food_type: "",
+    food_type: [] as string[],
     location: "",
     municipality: "",
     description: "",
@@ -43,6 +63,7 @@ const ManageRestaurants = () => {
 
   useEffect(() => {
     fetchRestaurants();
+    fetchMunicipalities();
   }, []);
 
   const fetchRestaurants = async () => {
@@ -56,13 +77,73 @@ const ManageRestaurants = () => {
     }
   };
 
+  const fetchMunicipalities = async () => {
+    try {
+      const [muniRes, cityRes] = await Promise.all([
+        fetch("https://psgc.gitlab.io/api/provinces/050500000/municipalities/"),
+        fetch("https://psgc.gitlab.io/api/provinces/050500000/cities/"),
+      ]);
+
+      const [muniData, cityData] = await Promise.all([muniRes.json(), cityRes.json()]);
+
+      const merged = [...(muniData || []), ...(cityData || [])];
+
+      if (Array.isArray(merged)) {
+        const sorted = merged
+          .map((m: any) => ({ code: m.code, name: m.name }))
+          .sort((a: Municipality, b: Municipality) => a.name.localeCompare(b.name));
+        setMunicipalities(sorted);
+      } else {
+        toast.error("Unexpected data format for municipalities/cities");
+      }
+    } catch (error) {
+      console.error("Error fetching municipalities and cities:", error);
+      toast.error("Failed to load municipalities and cities");
+    }
+  };
+
+  const fetchBarangays = async (code: string) => {
+    try {
+      let response = await fetch(
+        `https://psgc.gitlab.io/api/municipalities/${code}/barangays/`
+      );
+      if (!response.ok) {
+        response = await fetch(`https://psgc.gitlab.io/api/cities/${code}/barangays/`);
+      }
+      const data = await response.json();
+
+      if (Array.isArray(data)) {
+        const sorted = data
+          .map((b: any) => ({ code: b.code, name: b.name }))
+          .sort((a: Barangay, b: Barangay) => a.name.localeCompare(b.name));
+        setBarangays(sorted);
+      } else {
+        toast.error("Unexpected data format for barangays");
+      }
+    } catch (error) {
+      console.error("Error fetching barangays:", error);
+      toast.error("Failed to load barangays");
+    }
+  };
+
+  const handleMunicipalityChange = (code: string) => {
+    const selectedMunicipality = municipalities.find((m) => m.code === code);
+    setFormData((prev) => ({
+      ...prev,
+      municipality: selectedMunicipality?.name || "",
+      location: "",
+    }));
+    setBarangays([]);
+    if (code) fetchBarangays(code);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     const restaurantData = {
       name: formData.name,
-      food_type: formData.food_type || null,
+      food_type: formData.food_type.length ? formData.food_type.join(", ") : null,
       location: formData.location,
       municipality: formData.municipality || null,
       description: formData.description || null,
@@ -114,25 +195,37 @@ const ManageRestaurants = () => {
     setEditingRestaurant(restaurant);
     setFormData({
       name: restaurant.name,
-      food_type: restaurant.food_type || "",
+      food_type: restaurant.food_type ? restaurant.food_type.split(", ").map(t => t.trim()) : [],
       location: restaurant.location,
       municipality: restaurant.municipality || "",
       description: restaurant.description || "",
       image_url: restaurant.image_url || "",
     });
+
+    const muni = municipalities.find((m) => m.name === restaurant.municipality);
+    if (muni?.code) {
+      fetchBarangays(muni.code);
+    } else {
+      fetchMunicipalities().then(() => {
+        const found = municipalities.find((m) => m.name === restaurant.municipality);
+        if (found?.code) fetchBarangays(found.code);
+      });
+    }
+
     setIsDialogOpen(true);
   };
 
   const resetForm = () => {
     setFormData({
       name: "",
-      food_type: "",
+      food_type: [],
       location: "",
       municipality: "",
       description: "",
       image_url: "",
     });
     setEditingRestaurant(null);
+    setBarangays([]);
     setIsDialogOpen(false);
   };
 
@@ -150,11 +243,11 @@ const ManageRestaurants = () => {
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>{editingRestaurant ? "Edit" : "Add"} Restaurant</DialogTitle>
-              <DialogDescription>
-                Fill in the restaurant details
-              </DialogDescription>
+              <DialogDescription>Fill in the restaurant details</DialogDescription>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
+
+              {/* Name */}
               <div>
                 <Label htmlFor="name">Name *</Label>
                 <Input
@@ -164,32 +257,105 @@ const ManageRestaurants = () => {
                   required
                 />
               </div>
+
+              {/* Multi-select Food Type */}
               <div>
                 <Label htmlFor="food_type">Food Type</Label>
-                <Input
-                  id="food_type"
-                  value={formData.food_type}
-                  onChange={(e) => setFormData({ ...formData, food_type: e.target.value })}
-                  placeholder="e.g., Filipino, Italian, Seafood"
-                />
+                <Select
+                  onValueChange={(value) => {
+                    setFormData((prev) => {
+                      const alreadySelected = prev.food_type.includes(value);
+                      const updated = alreadySelected
+                        ? prev.food_type.filter((t) => t !== value)
+                        : [...prev.food_type, value];
+                      return { ...prev, food_type: updated };
+                    });
+                  }}
+                  value=""
+                >
+                  <SelectTrigger>
+                    <SelectValue
+                      placeholder={
+                        formData.food_type.length > 0
+                          ? formData.food_type.join(", ")
+                          : "Select food types"
+                      }
+                    />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {[
+                      "Filipino",
+                      "Korean",
+                      "Japanese",
+                      "Sea Food",
+                      "Fast Food",
+                      "Desserts",
+                      "Cafe",
+                      "Casual",
+                      "Buffet",
+                    ].map((type) => (
+                      <SelectItem key={type} value={type}>
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="checkbox"
+                            checked={formData.food_type.includes(type)}
+                            readOnly
+                          />
+                          <span>{type}</span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
+
+              {/* Municipality/City Dropdown */}
               <div>
-                <Label htmlFor="location">Location *</Label>
-                <Input
-                  id="location"
-                  value={formData.location}
-                  onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                  required
-                />
+                <Label>Municipality or City</Label>
+                <Select
+                  onValueChange={handleMunicipalityChange}
+                  value={municipalities.find((m) => m.name === formData.municipality)?.code || ""}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select municipality or city" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {municipalities.map((m) => (
+                      <SelectItem key={m.code} value={m.code}>
+                        {m.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
+
+              {/* Barangay (Location) Dropdown */}
               <div>
-                <Label htmlFor="municipality">Municipality</Label>
-                <Input
-                  id="municipality"
-                  value={formData.municipality}
-                  onChange={(e) => setFormData({ ...formData, municipality: e.target.value })}
-                />
+                <Label>Location (Barangay) *</Label>
+                <Select
+                  onValueChange={(code) => {
+                    const barangay = barangays.find((b) => b.code === code);
+                    setFormData((prev) => ({ ...prev, location: barangay?.name || "" }));
+                  }}
+                  value={barangays.find((b) => b.name === formData.location)?.code || ""}
+                  disabled={!barangays.length}
+                >
+                  <SelectTrigger>
+                    <SelectValue
+                      placeholder={barangays.length ? "Select a barangay" : "Select municipality first"}
+                    />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {barangays.map((b) => (
+                      <SelectItem key={b.code} value={b.code}>
+                        {b.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
+
+              {/* Description */}
               <div>
                 <Label htmlFor="description">Description</Label>
                 <Textarea
@@ -199,6 +365,8 @@ const ManageRestaurants = () => {
                   rows={3}
                 />
               </div>
+
+              {/* Image URL */}
               <div>
                 <Label htmlFor="image">Image URL</Label>
                 <Input
@@ -208,6 +376,8 @@ const ManageRestaurants = () => {
                   placeholder="https://..."
                 />
               </div>
+
+              {/* Form Actions */}
               <div className="flex gap-3 pt-4">
                 <Button type="submit" disabled={isLoading}>
                   {isLoading ? (
@@ -228,6 +398,7 @@ const ManageRestaurants = () => {
         </Dialog>
       </div>
 
+      {/* Restaurant List */}
       <div className="grid gap-4">
         {restaurants.map((restaurant) => (
           <Card key={restaurant.id}>
@@ -239,9 +410,7 @@ const ManageRestaurants = () => {
                     <CardTitle>{restaurant.name}</CardTitle>
                   </div>
                   {restaurant.food_type && (
-                    <p className="text-sm font-medium text-primary mb-1">
-                      {restaurant.food_type}
-                    </p>
+                    <p className="text-sm font-medium text-primary mb-1">{restaurant.food_type}</p>
                   )}
                   <p className="text-sm text-muted-foreground mb-2">{restaurant.location}</p>
                   {restaurant.description && (
@@ -252,11 +421,7 @@ const ManageRestaurants = () => {
                   <Button variant="ghost" size="icon" onClick={() => handleEdit(restaurant)}>
                     <Pencil className="w-4 h-4" />
                   </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => handleDelete(restaurant.id)}
-                  >
+                  <Button variant="ghost" size="icon" onClick={() => handleDelete(restaurant.id)}>
                     <Trash2 className="w-4 h-4 text-destructive" />
                   </Button>
                 </div>
