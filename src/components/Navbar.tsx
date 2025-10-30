@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Plane, User, LogOut, Map, Sparkles, Menu, X, Shield, Cloud } from "lucide-react";
+import { Plane, User, LogOut, Map, Sparkles, Menu, X, Shield, Cloud, PhoneCall } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Session } from "@supabase/supabase-js";
 import { toast } from "sonner";
@@ -119,6 +119,15 @@ const Navbar = () => {
             </Link>
           </div>
 
+          {/* ✅ EMERGENCY HOTLINE BUTTON */}
+              <Link
+                to="/emergency-hotlines"
+                className="text-sm font-medium hover:text-primary transition-colors flex items-center gap-1"
+              >
+                <PhoneCall className="w-4 h-4" />
+                Emergency
+              </Link>
+
           {/* === THEME TOGGLE === */}
           <ThemeToggle />
 
@@ -222,6 +231,15 @@ const Navbar = () => {
               <Map className="w-4 h-4 inline mr-2" />
               Map
             </Link>
+            
+            {/* ✅ EMERGENCY HOTLINE BUTTON */}
+              <Link
+                to="/emergency-hotlines"
+                className="text-sm font-medium hover:text-primary transition-colors flex items-center gap-1"
+              >
+                <PhoneCall className="w-4 h-4" />
+                Emergency
+              </Link>
 
             {session && (
               <Button onClick={handleLogout} variant="outline" className="w-full">
