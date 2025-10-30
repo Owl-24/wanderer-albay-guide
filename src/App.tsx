@@ -13,6 +13,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import MapPage from "./pages/MapPage";
 import SpotDetail from "./pages/SpotDetail";
 import NotFound from "./pages/NotFound";
+import EmergencyHotlines from "./pages/EmergencyHotlinePage";
 
 const queryClient = new QueryClient();
 
@@ -32,6 +33,7 @@ const App = () => (
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/map" element={<MapPage />} />
+            <Route path="/emergency-hotlines" element={<EmergencyHotlines />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
