@@ -94,10 +94,13 @@ const AdminDashboard = () => {
           </div>
 
           <Tabs defaultValue="spots" className="w-full">
-            <TabsList className="grid w-full grid-cols-3 mb-8">
+            <TabsList className="grid w-full grid-cols-6 mb-8">
               <TabsTrigger value="spots">Tourist Spots</TabsTrigger>
               <TabsTrigger value="restaurants">Restaurants</TabsTrigger>
-              <TabsTrigger value="events">Events & Festivals</TabsTrigger>
+              <TabsTrigger value="events">Events</TabsTrigger>
+              <TabsTrigger value="users">Users</TabsTrigger>
+              <TabsTrigger value="reviews">Reviews</TabsTrigger>
+              <TabsTrigger value="analytics">Analytics</TabsTrigger>
             </TabsList>
 
             <TabsContent value="spots">
@@ -110,6 +113,18 @@ const AdminDashboard = () => {
 
             <TabsContent value="events">
               <ManageEvents />
+            </TabsContent>
+
+            <TabsContent value="users">
+              <UserManagement />
+            </TabsContent>
+
+            <TabsContent value="reviews">
+              <ReviewManagement />
+            </TabsContent>
+
+            <TabsContent value="analytics">
+              <Analytics />
             </TabsContent>
           </Tabs>
         </div>

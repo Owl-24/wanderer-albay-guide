@@ -62,6 +62,7 @@ const ManageSpots = () => {
     contact_number: "",
     image_url: "",
     categories: [] as string[],
+    is_hidden_gem: false,
   });
 
   const availableCategories = ["Nature", "Culture", "Adventure", "Food", "Beach", "Heritage"];
@@ -155,6 +156,7 @@ const ManageSpots = () => {
       contact_number: formData.contact_number || null,
       image_url: formData.image_url || null,
       category: formData.categories,
+      is_hidden_gem: formData.is_hidden_gem,
     };
 
     const { error } = editingSpot
@@ -183,7 +185,7 @@ const ManageSpots = () => {
     }
   };
 
-  const handleEdit = (spot: TouristSpot) => {
+  const handleEdit = (spot: any) => {
     setEditingSpot(spot);
     setFormData({
       name: spot.name,
@@ -193,6 +195,7 @@ const ManageSpots = () => {
       contact_number: spot.contact_number || "",
       image_url: spot.image_url || "",
       categories: spot.category,
+      is_hidden_gem: spot.is_hidden_gem || false,
     });
     setIsDialogOpen(true);
   };
@@ -206,6 +209,7 @@ const ManageSpots = () => {
       contact_number: "",
       image_url: "",
       categories: [],
+      is_hidden_gem: false,
     });
     setBarangays([]);
     setEditingSpot(null);
@@ -351,6 +355,23 @@ const ManageSpots = () => {
                       <label className="cursor-pointer select-none">{category}</label>
                     </div>
                   ))}
+                </div>
+              </div>
+
+              <div className="flex items-center space-x-2 p-4 border-2 border-primary/50 rounded-lg bg-primary/5">
+                <Checkbox
+                  checked={formData.is_hidden_gem}
+                  onCheckedChange={(checked) =>
+                    setFormData({ ...formData, is_hidden_gem: !!checked })
+                  }
+                />
+                <div>
+                  <label className="cursor-pointer select-none font-medium">
+                    💎 Mark as Hidden Gem
+                  </label>
+                  <p className="text-xs text-muted-foreground">
+                    Featured on homepage as a special discovery
+                  </p>
                 </div>
               </div>
 

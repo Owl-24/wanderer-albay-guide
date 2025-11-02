@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Session } from "@supabase/supabase-js";
 import { toast } from "sonner";
 import { MapPin, Trash2, Calendar, Sparkles, Edit } from "lucide-react";
+import OnboardingModal from "@/components/OnboardingModal";
 
 interface Itinerary {
   id: string;
@@ -25,6 +26,7 @@ const Dashboard = () => {
   const [session, setSession] = useState<Session | null>(null);
   const [itineraries, setItineraries] = useState<Itinerary[]>([]);
   const [profile, setProfile] = useState<any>(null);
+  const [showOnboarding, setShowOnboarding] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -58,6 +60,10 @@ const Dashboard = () => {
     
     if (data) {
       setProfile(data);
+      // Show onboarding if user hasn't completed it
+      if (!data.onboarding_answers) {
+        setShowOnboarding(true);
+      }
     }
   };
 
@@ -87,6 +93,17 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
+
+      {session && (
+        <OnboardingModal
+          open={showOnboarding}
+          onComplete={() => {
+            setShowOnboarding(false);
+            fetchProfile(session.user.id);
+          }}
+          userId={session.user.id}
+        />
+      )}
 
       <div className="container py-12">
         <div className="max-w-5xl mx-auto">

@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import Navbar from "@/components/Navbar";
+import HiddenGemsSection from "@/components/HiddenGemsSection";
 import { Sparkles, Mountain, UtensilsCrossed, Church, Waves, MapPin, ArrowRight } from "lucide-react";
 import heroImage from "@/assets/hero-mayon.jpg";
 import { supabase } from "@/integrations/supabase/client";
@@ -152,6 +153,9 @@ const Index = () => {
           </div>
         </div>
       </section>
+
+      {/* Hidden Gems Section */}
+      <HiddenGemsSection />
 
       {/* Features Section */}
       <section className="py-20">

@@ -1,8 +1,22 @@
+import { useState } from "react";
 import Navbar from "@/components/Navbar";
 import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import Map from "@/components/Map";
 import { MapPin } from "lucide-react";
 
 const MapPage = () => {
+  const [mapboxToken, setMapboxToken] = useState("");
+  const [showTokenInput, setShowTokenInput] = useState(true);
+
+  const handleSubmitToken = () => {
+    if (mapboxToken.trim()) {
+      setShowTokenInput(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
@@ -17,30 +31,44 @@ const MapPage = () => {
           </p>
         </div>
 
-        <Card className="p-8 bg-muted/30">
-          <div className="flex flex-col items-center justify-center min-h-[500px] text-center">
-            <MapPin className="w-20 h-20 text-primary mb-6" />
-            <h2 className="text-2xl font-bold mb-4">Map Integration Coming Soon</h2>
-            <p className="text-muted-foreground max-w-md mb-6">
-              We're working on integrating an interactive map with all tourist spots in Albay.
-              This feature will include directions, nearby amenities, and real-time location tracking.
-            </p>
-            <div className="flex flex-wrap gap-3 justify-center text-sm text-muted-foreground">
-              <div className="flex items-center gap-2 bg-background px-4 py-2 rounded-full">
-                <MapPin className="w-4 h-4 text-primary" />
-                <span>Tourist Spots</span>
+        {showTokenInput ? (
+          <Card className="p-8 max-w-md mx-auto">
+            <div className="space-y-4">
+              <div className="text-center mb-4">
+                <MapPin className="w-12 h-12 text-primary mx-auto mb-3" />
+                <h2 className="text-xl font-bold">Enter Mapbox Token</h2>
+                <p className="text-sm text-muted-foreground mt-2">
+                  Get your free public token from{" "}
+                  <a
+                    href="https://mapbox.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-primary hover:underline"
+                  >
+                    mapbox.com
+                  </a>
+                </p>
               </div>
-              <div className="flex items-center gap-2 bg-background px-4 py-2 rounded-full">
-                <MapPin className="w-4 h-4 text-accent" />
-                <span>Restaurants</span>
+              <div className="space-y-2">
+                <Label htmlFor="mapbox-token">Mapbox Public Token</Label>
+                <Input
+                  id="mapbox-token"
+                  type="text"
+                  placeholder="pk.eyJ1..."
+                  value={mapboxToken}
+                  onChange={(e) => setMapboxToken(e.target.value)}
+                />
               </div>
-              <div className="flex items-center gap-2 bg-background px-4 py-2 rounded-full">
-                <MapPin className="w-4 h-4 text-secondary" />
-                <span>Hotels</span>
-              </div>
+              <Button onClick={handleSubmitToken} className="w-full">
+                Load Map
+              </Button>
             </div>
+          </Card>
+        ) : (
+          <div className="h-[600px]">
+            <Map mapboxToken={mapboxToken} />
           </div>
-        </Card>
+        )}
       </div>
     </div>
   );

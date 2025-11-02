@@ -55,6 +55,7 @@ export type Database = {
           created_at: string
           id: string
           name: string
+          route: Json | null
           selected_categories: string[] | null
           spots: Json | null
           updated_at: string
@@ -64,6 +65,7 @@ export type Database = {
           created_at?: string
           id?: string
           name?: string
+          route?: Json | null
           selected_categories?: string[] | null
           spots?: Json | null
           updated_at?: string
@@ -73,6 +75,7 @@ export type Database = {
           created_at?: string
           id?: string
           name?: string
+          route?: Json | null
           selected_categories?: string[] | null
           spots?: Json | null
           updated_at?: string
@@ -87,6 +90,7 @@ export type Database = {
           created_at: string
           full_name: string | null
           id: string
+          onboarding_answers: Json | null
           updated_at: string
         }
         Insert: {
@@ -95,6 +99,7 @@ export type Database = {
           created_at?: string
           full_name?: string | null
           id: string
+          onboarding_answers?: Json | null
           updated_at?: string
         }
         Update: {
@@ -103,6 +108,7 @@ export type Database = {
           created_at?: string
           full_name?: string | null
           id?: string
+          onboarding_answers?: Json | null
           updated_at?: string
         }
         Relationships: []
@@ -183,6 +189,7 @@ export type Database = {
           description: string | null
           id: string
           image_url: string | null
+          is_hidden_gem: boolean | null
           latitude: number | null
           location: string
           longitude: number | null
@@ -198,6 +205,7 @@ export type Database = {
           description?: string | null
           id?: string
           image_url?: string | null
+          is_hidden_gem?: boolean | null
           latitude?: number | null
           location: string
           longitude?: number | null
@@ -213,6 +221,7 @@ export type Database = {
           description?: string | null
           id?: string
           image_url?: string | null
+          is_hidden_gem?: boolean | null
           latitude?: number | null
           location?: string
           longitude?: number | null
