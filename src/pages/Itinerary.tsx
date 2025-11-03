@@ -62,6 +62,8 @@ const Itinerary = () => {
     { name: "Culture", icon: "🏯", description: "Churches, museums, and heritage sites" },
     { name: "Adventure", icon: "🧗", description: "Thrilling outdoor activities" },
     { name: "Food", icon: "🍜", description: "Local cuisine and restaurants" },
+    { name: "Beach", icon: "🍜", description: "Beaches" },
+    { name: "Heritage", icon: "🍜", description: "Tradition and Origin" },
   ];
 
   const toggleCategory = (category: string) => {
