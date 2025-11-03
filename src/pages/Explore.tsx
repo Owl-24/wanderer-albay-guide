@@ -77,19 +77,43 @@ const Explore = () => {
     setFilteredSpots(filtered);
   };
 
-  const categories = ["Nature", "Culture", "Adventure", "Food", "Beach", "Heritage"];
+  const categories = [
+  "Nature",
+  "Culture",
+  "Adventure",
+  "Food",
+  "Beach",
+  "Heritage",
+  "Religious Sites",
+  "Waterfalls",
+  "Mountains",
+  "Museums",
+  "Parks",
+  "Festivals",
+  "Shopping",
+  "Eco-tourism",
+];
 
-  const getCategoryColor = (category: string) => {
-    const colors: Record<string, string> = {
-      Nature: "bg-secondary text-secondary-foreground",
-      Culture: "bg-accent text-accent-foreground",
-      Adventure: "bg-primary text-primary-foreground",
-      Food: "bg-orange-500 text-white",
-      Beach: "bg-blue-500 text-white",
-      Heritage: "bg-purple-500 text-white",
-    };
-    return colors[category] || "bg-muted";
+const getCategoryColor = (category: string) => {
+  const colors: Record<string, string> = {
+    Nature: "bg-green-500 text-white",
+    Culture: "bg-yellow-500 text-white",
+    Adventure: "bg-red-500 text-white",
+    Food: "bg-orange-500 text-white",
+    Beach: "bg-blue-500 text-white",
+    Heritage: "bg-purple-500 text-white",
+    "Religious Sites": "bg-indigo-500 text-white",
+    Waterfalls: "bg-cyan-500 text-white",
+    Mountains: "bg-emerald-600 text-white",
+    Museums: "bg-pink-500 text-white",
+    Parks: "bg-lime-500 text-white",
+    Festivals: "bg-fuchsia-500 text-white",
+    Shopping: "bg-rose-500 text-white",
+    "Eco-tourism": "bg-teal-500 text-white",
   };
+  return colors[category] || "bg-muted text-muted-foreground";
+};
+
 
   const addToItinerary = async (spot: TouristSpot, e: React.MouseEvent) => {
     e.stopPropagation();

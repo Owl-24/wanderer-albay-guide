@@ -57,13 +57,22 @@ const Itinerary = () => {
     }
   }, [location.state]);
 
-  const categories = [
-    { name: "Nature", icon: "🌳", description: "Mountains, lakes, and natural wonders" },
-    { name: "Culture", icon: "🏯", description: "Churches, museums, and heritage sites" },
-    { name: "Adventure", icon: "🧗", description: "Thrilling outdoor activities" },
-    { name: "Food", icon: "🍜", description: "Local cuisine and restaurants" },
-    { name: "Beach", icon: "🍜", description: "Beaches" },
-    { name: "Heritage", icon: "🍜", description: "Tradition and Origin" },
+const categories = [
+  { name: "Nature", icon: "🌳", description: "Mountains, lakes, waterfalls, and natural wonders" },
+  { name: "Culture", icon: "🏯", description: "Local arts, museums, and community traditions" },
+  { name: "Adventure", icon: "🧗", description: "Hiking, climbing, and thrilling outdoor activities" },
+  { name: "Food", icon: "🍜", description: "Local cuisine, cafés, and restaurants" },
+  { name: "Beach", icon: "🏖️", description: "Coastal spots and white sand beaches" },
+  { name: "Heritage", icon: "🏛️", description: "Historical landmarks and ancestral houses" },
+  { name: "Religious Sites", icon: "⛪", description: "Churches, mosques, and pilgrimage sites" },
+  { name: "Waterfalls", icon: "💦", description: "Hidden cascades and refreshing waterfalls" },
+  { name: "Mountains", icon: "⛰️", description: "Scenic peaks and hiking destinations" },
+  { name: "Museums", icon: "🖼️", description: "Art galleries and cultural exhibits" },
+  { name: "Parks", icon: "🌿", description: "Nature parks and eco-friendly spaces" },
+  { name: "Festivals", icon: "🎉", description: "Lively celebrations and cultural events" },
+  { name: "Shopping", icon: "🛍️", description: "Souvenir shops and local markets" },
+  { name: "Eco-tourism", icon: "🌎", description: "Sustainable and nature-centered travel spots" },
+
   ];
 
   const toggleCategory = (category: string) => {
