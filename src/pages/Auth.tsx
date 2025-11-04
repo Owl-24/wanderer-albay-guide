@@ -47,7 +47,7 @@ const Auth = () => {
 
     setIsLoading(true);
 
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabase.auth.signInWithPassword({
       email: loginEmail,
       password: loginPassword,
     });
@@ -56,6 +56,9 @@ const Auth = () => {
 
     if (error) {
       toast.error(error.message);
+    } else if (data.user && !data.user.email_confirmed_at) {
+      toast.warning("Please verify your email before logging in.");
+      navigate("/verify-email");
     } else {
       toast.success("Welcome back to Wanderer!");
       navigate("/");
@@ -99,12 +102,8 @@ const Auth = () => {
     if (error) {
       toast.error(error.message);
     } else {
-      toast.success("Account created successfully! Please check your email for confirmation.");
-      // Clear signup fields
-      setSignupEmail("");
-      setSignupPassword("");
-      setSignupConfirmPassword("");
-      setSignupName("");
+      toast.success("Account created! Please verify your email to continue.");
+      navigate("/verify-email");
     }
   };
 

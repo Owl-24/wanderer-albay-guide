@@ -92,6 +92,7 @@ export type Database = {
           id: string
           onboarding_answers: Json | null
           updated_at: string
+          user_preferences: Json | null
         }
         Insert: {
           avatar_url?: string | null
@@ -101,6 +102,7 @@ export type Database = {
           id: string
           onboarding_answers?: Json | null
           updated_at?: string
+          user_preferences?: Json | null
         }
         Update: {
           avatar_url?: string | null
@@ -110,6 +112,7 @@ export type Database = {
           id?: string
           onboarding_answers?: Json | null
           updated_at?: string
+          user_preferences?: Json | null
         }
         Relationships: []
       }

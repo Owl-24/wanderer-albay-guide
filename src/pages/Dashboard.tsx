@@ -60,8 +60,8 @@ const Dashboard = () => {
     
     if (data) {
       setProfile(data);
-      // Show onboarding if user hasn't completed it
-      if (!data.onboarding_answers) {
+      // Show onboarding if user hasn't completed it (check user_preferences instead)
+      if (!data.user_preferences) {
         setShowOnboarding(true);
       }
     }
