@@ -10,8 +10,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { supabase } from "@/integrations/supabase/client";
 import { Session } from "@supabase/supabase-js";
 import { toast } from "sonner";
-import { MapPin, Trash2, Calendar, Sparkles, Edit } from "lucide-react";
+import { MapPin, Trash2, Calendar, Sparkles, Edit, RefreshCw } from "lucide-react";
 import OnboardingModal from "@/components/OnboardingModal";
+import RecommendedSpots from "@/components/RecommendedSpots";
 
 interface Itinerary {
   id: string;
@@ -157,31 +158,59 @@ const Dashboard = () => {
             </div>
           </div>
 
+          {/* Personalized Recommendations */}
+          {profile?.user_preferences && (
+            <div className="mb-12 animate-fade-in">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h2 className="text-3xl font-bold mb-2">
+                    Your Recommended Destinations 🌋
+                  </h2>
+                  <p className="text-muted-foreground">
+                    Curated based on your travel preferences
+                  </p>
+                </div>
+                <Button 
+                  variant="outline" 
+                  onClick={() => setShowOnboarding(true)}
+                  className="gap-2"
+                >
+                  <RefreshCw className="w-4 h-4" />
+                  Edit Preferences
+                </Button>
+              </div>
+              <RecommendedSpots preferences={profile.user_preferences} />
+            </div>
+          )}
+
           {/* Quick Actions */}
-          <div className="grid md:grid-cols-3 gap-6 mb-12">
-            <Card className="cursor-pointer hover:shadow-lg transition-all" onClick={() => navigate("/itinerary")}>
-              <CardContent className="p-6 text-center">
-                <Sparkles className="w-12 h-12 mx-auto mb-4 text-primary" />
-                <h3 className="font-semibold text-lg mb-2">Build New Itinerary</h3>
-                <p className="text-sm text-muted-foreground">Create a personalized travel plan</p>
-              </CardContent>
-            </Card>
+          <div className="mb-12">
+            <h2 className="text-2xl font-bold mb-6">Quick Actions</h2>
+            <div className="grid md:grid-cols-3 gap-6">
+              <Card className="cursor-pointer hover:shadow-lg transition-all" onClick={() => navigate("/itinerary")}>
+                <CardContent className="p-6 text-center">
+                  <Sparkles className="w-12 h-12 mx-auto mb-4 text-primary" />
+                  <h3 className="font-semibold text-lg mb-2">Build New Itinerary</h3>
+                  <p className="text-sm text-muted-foreground">Create a personalized travel plan</p>
+                </CardContent>
+              </Card>
 
-            <Card className="cursor-pointer hover:shadow-lg transition-all" onClick={() => navigate("/explore")}>
-              <CardContent className="p-6 text-center">
-                <MapPin className="w-12 h-12 mx-auto mb-4 text-accent" />
-                <h3 className="font-semibold text-lg mb-2">Explore Destinations</h3>
-                <p className="text-sm text-muted-foreground">Discover tourist spots in Albay</p>
-              </CardContent>
-            </Card>
+              <Card className="cursor-pointer hover:shadow-lg transition-all" onClick={() => navigate("/explore")}>
+                <CardContent className="p-6 text-center">
+                  <MapPin className="w-12 h-12 mx-auto mb-4 text-accent" />
+                  <h3 className="font-semibold text-lg mb-2">Explore All Destinations</h3>
+                  <p className="text-sm text-muted-foreground">Browse all tourist spots in Albay</p>
+                </CardContent>
+              </Card>
 
-            <Card className="cursor-pointer hover:shadow-lg transition-all" onClick={() => navigate("/map")}>
-              <CardContent className="p-6 text-center">
-                <MapPin className="w-12 h-12 mx-auto mb-4 text-secondary" />
-                <h3 className="font-semibold text-lg mb-2">View Map</h3>
-                <p className="text-sm text-muted-foreground">See all locations on the map</p>
-              </CardContent>
-            </Card>
+              <Card className="cursor-pointer hover:shadow-lg transition-all" onClick={() => navigate("/map")}>
+                <CardContent className="p-6 text-center">
+                  <MapPin className="w-12 h-12 mx-auto mb-4 text-secondary" />
+                  <h3 className="font-semibold text-lg mb-2">View Map</h3>
+                  <p className="text-sm text-muted-foreground">See all locations on the map</p>
+                </CardContent>
+              </Card>
+            </div>
           </div>
 
           {/* Saved Itineraries */}
