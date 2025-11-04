@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
-import { MapPin, Search, Star, Plus } from "lucide-react";
+import { MapPin, Search, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Session } from "@supabase/supabase-js";
@@ -26,7 +26,7 @@ const Explore = () => {
   const [spots, setSpots] = useState<TouristSpot[]>([]);
   const [filteredSpots, setFilteredSpots] = useState<TouristSpot[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [session, setSession] = useState<Session | null>(null);
 
   useEffect(() => {
@@ -46,7 +46,7 @@ const Explore = () => {
 
   useEffect(() => {
     filterSpots();
-  }, [searchQuery, selectedCategory, spots]);
+  }, [searchQuery, selectedCategories, spots]);
 
   const fetchSpots = async () => {
     const { data, error } = await supabase
@@ -70,66 +70,70 @@ const Explore = () => {
       );
     }
 
-    if (selectedCategory) {
-      filtered = filtered.filter((spot) => spot.category.includes(selectedCategory));
+    if (selectedCategories.length > 0) {
+      // ✅ AND logic — show only if spot contains *all* selected categories
+      filtered = filtered.filter((spot) =>
+        selectedCategories.every((cat) => spot.category.includes(cat))
+      );
     }
 
     setFilteredSpots(filtered);
   };
 
   const categories = [
-  "Nature",
-  "Culture",
-  "Adventure",
-  "Food",
-  "Beach",
-  "Heritage",
-  "Religious Sites",
-  "Waterfalls",
-  "Mountains",
-  "Museums",
-  "Parks",
-  "Festivals",
-  "Shopping",
-  "Eco-tourism",
-];
+    "Nature",
+    "Culture",
+    "Adventure",
+    "Food",
+    "Beach",
+    "Heritage",
+    "Religious Sites",
+    "Waterfalls",
+    "Mountains",
+    "Museums",
+    "Parks",
+    "Festivals",
+    "Shopping",
+    "Eco-tourism",
+  ];
 
-const getCategoryColor = (category: string) => {
-  const colors: Record<string, string> = {
-    Nature: "bg-green-500 text-white",
-    Culture: "bg-yellow-500 text-white",
-    Adventure: "bg-red-500 text-white",
-    Food: "bg-orange-500 text-white",
-    Beach: "bg-blue-500 text-white",
-    Heritage: "bg-purple-500 text-white",
-    "Religious Sites": "bg-indigo-500 text-white",
-    Waterfalls: "bg-cyan-500 text-white",
-    Mountains: "bg-emerald-600 text-white",
-    Museums: "bg-pink-500 text-white",
-    Parks: "bg-lime-500 text-white",
-    Festivals: "bg-fuchsia-500 text-white",
-    Shopping: "bg-rose-500 text-white",
-    "Eco-tourism": "bg-teal-500 text-white",
+  const getCategoryColor = (category: string) => {
+    const colors: Record<string, string> = {
+      Nature: "bg-green-500 text-white",
+      Culture: "bg-yellow-500 text-white",
+      Adventure: "bg-red-500 text-white",
+      Food: "bg-orange-500 text-white",
+      Beach: "bg-blue-500 text-white",
+      Heritage: "bg-purple-500 text-white",
+      "Religious Sites": "bg-indigo-500 text-white",
+      Waterfalls: "bg-cyan-500 text-white",
+      Mountains: "bg-emerald-600 text-white",
+      Museums: "bg-pink-500 text-white",
+      Parks: "bg-lime-500 text-white",
+      Festivals: "bg-fuchsia-500 text-white",
+      Shopping: "bg-rose-500 text-white",
+      "Eco-tourism": "bg-teal-500 text-white",
+    };
+    return colors[category] || "bg-muted text-muted-foreground";
   };
-  return colors[category] || "bg-muted text-muted-foreground";
-};
-
 
   const addToItinerary = async (spot: TouristSpot, e: React.MouseEvent) => {
     e.stopPropagation();
-    
+
     if (!session?.user) {
       toast.error("Please sign in to add to itinerary");
       navigate("/auth");
       return;
     }
 
-    const { error } = await supabase.from("itineraries").insert([{
-      user_id: session.user.id,
-      name: `Quick Trip - ${spot.name}`,
-      selected_categories: spot.category,
-      spots: [spot] as any,
-    }]);
+    const { error } = await supabase.from("itineraries").insert([
+      {
+        user_id: session.user.id,
+        name: `Quick Trip - ${spot.name}`,
+        selected_categories: spot.category,
+        spots: [spot] as any,
+      },
+    ]);
 
     if (error) {
       toast.error("Failed to add to itinerary");
@@ -166,22 +170,32 @@ const getCategoryColor = (category: string) => {
 
           <div className="flex flex-wrap gap-2">
             <Button
-              variant={selectedCategory === null ? "default" : "outline"}
+              variant={selectedCategories.length === 0 ? "default" : "outline"}
               size="sm"
-              onClick={() => setSelectedCategory(null)}
+              onClick={() => setSelectedCategories([])}
             >
               All
             </Button>
-            {categories.map((category) => (
-              <Button
-                key={category}
-                variant={selectedCategory === category ? "default" : "outline"}
-                size="sm"
-                onClick={() => setSelectedCategory(category)}
-              >
-                {category}
-              </Button>
-            ))}
+
+            {categories.map((category) => {
+              const isSelected = selectedCategories.includes(category);
+              return (
+                <Button
+                  key={category}
+                  variant={isSelected ? "default" : "outline"}
+                  size="sm"
+                  onClick={() =>
+                    setSelectedCategories((prev) =>
+                      isSelected
+                        ? prev.filter((c) => c !== category)
+                        : [...prev, category]
+                    )
+                  }
+                >
+                  {category}
+                </Button>
+              );
+            })}
           </div>
         </div>
 
@@ -203,14 +217,7 @@ const getCategoryColor = (category: string) => {
                     />
                   </div>
                 )}
-                {/* <Button
-                  size="icon"
-                  className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity z-10 bg-background/90 backdrop-blur-sm hover:bg-background"
-                  onClick={(e) => addToItinerary(spot, e)}
-                  title="Add to itinerary"
-                >
-                  <Plus className="w-4 h-4" />
-                </Button> */}
+
                 <CardHeader>
                   <CardTitle className="flex items-start justify-between gap-2">
                     <span className="line-clamp-2">{spot.name}</span>
@@ -222,6 +229,7 @@ const getCategoryColor = (category: string) => {
                     )}
                   </CardTitle>
                 </CardHeader>
+
                 <CardContent>
                   {spot.description && (
                     <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
@@ -234,7 +242,11 @@ const getCategoryColor = (category: string) => {
                   </div>
                   <div className="flex flex-wrap gap-2">
                     {spot.category.map((cat) => (
-                      <Badge key={cat} className={getCategoryColor(cat)} variant="secondary">
+                      <Badge
+                        key={cat}
+                        className={getCategoryColor(cat)}
+                        variant="secondary"
+                      >
                         {cat}
                       </Badge>
                     ))}
@@ -244,7 +256,9 @@ const getCategoryColor = (category: string) => {
             ))
           ) : (
             <div className="col-span-full text-center py-12">
-              <p className="text-lg text-muted-foreground">No destinations found</p>
+              <p className="text-lg text-muted-foreground">
+                No destinations found
+              </p>
             </div>
           )}
         </div>
