@@ -1,162 +1,221 @@
-import { useEffect, useRef, useState } from "react";
-import mapboxgl from "mapbox-gl";
-import "mapbox-gl/dist/mapbox-gl.css";
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
-import { Card } from "./ui/card";
-import { Button } from "./ui/button";
-import { Badge } from "./ui/badge";
-import { X, Navigation } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from "react-leaflet";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
 
-interface MapProps {
-  mapboxToken?: string;
-}
+const markerIcon = new L.Icon({
+  iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+});
 
-interface TouristSpot {
-  id: string;
-  name: string;
-  description: string;
-  latitude: number;
-  longitude: number;
-  category: string[];
-  image_url: string;
-  municipality: string;
-}
-
-const Map = ({ mapboxToken }: MapProps) => {
-  const mapContainer = useRef<HTMLDivElement>(null);
-  const map = useRef<mapboxgl.Map | null>(null);
-  const [selectedSpot, setSelectedSpot] = useState<TouristSpot | null>(null);
-  const [spots, setSpots] = useState<TouristSpot[]>([]);
+const Map = () => {
+  const [position, setPosition] = useState<[number, number] | null>(null);
+  const [destination, setDestination] = useState<[number, number] | null>(null);
+  const [route, setRoute] = useState<any[]>([]);
+  const [distance, setDistance] = useState<number | null>(null);
+  const [duration, setDuration] = useState<number | null>(null);
+  const [destinationInput, setDestinationInput] = useState("");
+  const [recommendation, setRecommendation] = useState<string>("");
 
   useEffect(() => {
-    fetchTouristSpots();
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const coords: [number, number] = [pos.coords.latitude, pos.coords.longitude];
+        setPosition(coords);
+      },
+      () => alert("Failed to get your location. Please enable location services.")
+    );
   }, []);
 
-  const fetchTouristSpots = async () => {
-    const { data, error } = await supabase
-      .from("tourist_spots")
-      .select("*")
-      .not("latitude", "is", null)
-      .not("longitude", "is", null);
+  const FlyToLocation = ({ coords }: { coords: [number, number] }) => {
+    const map = useMap();
+    useEffect(() => {
+      if (coords) map.flyTo(coords, 13);
+    }, [coords]);
+    return null;
+  };
 
-    if (error) {
-      console.error("Error fetching spots:", error);
-      toast.error("Failed to load tourist spots");
-      return;
+  const handleSearch = async () => {
+    if (!destinationInput.trim()) return;
+    const query = encodeURIComponent(destinationInput);
+    const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${query}`);
+    const data = await res.json();
+
+    if (data && data[0]) {
+      const coords: [number, number] = [parseFloat(data[0].lat), parseFloat(data[0].lon)];
+      setDestination(coords);
+    } else {
+      alert("Destination not found.");
     }
-
-    setSpots(data || []);
   };
 
   useEffect(() => {
-    if (!mapContainer.current || !mapboxToken || map.current) return;
+    const getRoute = async () => {
+      if (!position || !destination) return;
+      const url = `https://router.project-osrm.org/route/v1/driving/${position[1]},${position[0]};${destination[1]},${destination[0]}?overview=full&geometries=geojson`;
+      const res = await fetch(url);
+      const data = await res.json();
 
-    mapboxgl.accessToken = mapboxToken;
+      if (data.routes && data.routes.length > 0) {
+        const routeCoords = data.routes[0].geometry.coordinates.map((c: number[]) => [c[1], c[0]]);
+        setRoute(routeCoords);
+        setDistance(data.routes[0].distance / 1000);
+        setDuration(data.routes[0].duration / 60);
 
-    map.current = new mapboxgl.Map({
-      container: mapContainer.current,
-      style: "mapbox://styles/mapbox/streets-v12",
-      center: [123.7454, 13.1391], // Albay, Philippines
-      zoom: 10,
-    });
-
-    map.current.addControl(new mapboxgl.NavigationControl(), "top-right");
-
-    map.current.on("load", () => {
-      if (!map.current) return;
-
-      // Add markers for each tourist spot
-      spots.forEach((spot) => {
-        const el = document.createElement("div");
-        el.className = "custom-marker";
-        el.style.width = "30px";
-        el.style.height = "30px";
-        el.style.borderRadius = "50%";
-        el.style.backgroundColor = "#ef4444";
-        el.style.border = "3px solid white";
-        el.style.cursor = "pointer";
-        el.style.boxShadow = "0 2px 8px rgba(0,0,0,0.3)";
-
-        new mapboxgl.Marker(el)
-          .setLngLat([spot.longitude, spot.latitude])
-          .addTo(map.current!)
-          .getElement()
-          .addEventListener("click", () => {
-            setSelectedSpot(spot);
-          });
-      });
-    });
-
-    return () => {
-      map.current?.remove();
+        const km = data.routes[0].distance / 1000;
+        if (km < 10) setRecommendation("🚌 Take a tricycle, jeepney, or walk if nearby. Quick and easy!");
+        else if (km < 80) setRecommendation("🚐 Try taking a bus or van — affordable and frequent rides available.");
+        else setRecommendation("🚗 Best to drive your own vehicle or rent one for comfort and time efficiency.");
+      }
     };
-  }, [mapboxToken, spots]);
-
-  if (!mapboxToken) {
-    return (
-      <Card className="p-8 text-center">
-        <p className="text-muted-foreground mb-4">
-          Mapbox token is required to display the interactive map.
-        </p>
-        <p className="text-sm text-muted-foreground">
-          Add your Mapbox public token to view the map.
-        </p>
-      </Card>
-    );
-  }
+    getRoute();
+  }, [position, destination]);
 
   return (
-    <div className="relative w-full h-full min-h-[600px]">
-      <div ref={mapContainer} className="absolute inset-0 rounded-lg" />
-
-      {selectedSpot && (
-        <Card className="absolute bottom-6 left-6 right-6 md:left-6 md:right-auto md:max-w-sm p-4 shadow-2xl z-10">
-          <button
-            onClick={() => setSelectedSpot(null)}
-            className="absolute top-2 right-2 p-1 hover:bg-muted rounded-full"
-          >
-            <X className="w-4 h-4" />
-          </button>
-
-          <img
-            src={selectedSpot.image_url || "/placeholder.svg"}
-            alt={selectedSpot.name}
-            className="w-full h-40 object-cover rounded-lg mb-3"
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        padding: "2rem",
+        background: "#0f172a",
+        minHeight: "100vh",
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          background: "#1e293b",
+          borderRadius: "16px",
+          overflow: "hidden",
+          width: "90%",
+          maxWidth: "1200px",
+          boxShadow: "0 4px 25px rgba(0,0,0,0.4)",
+        }}
+      >
+        {/* Sidebar */}
+        <div
+          style={{
+            width: "320px",
+            padding: "20px",
+            display: "flex",
+            flexDirection: "column",
+            gap: "16px",
+            color: "#fff",
+            justifyContent: "flex-start",
+          }}
+        >
+          <h3 style={{ color: "#38bdf8", fontWeight: "600", fontSize: "18px" }}>Search Destination</h3>
+          <input
+            type="text"
+            value={destinationInput}
+            onChange={(e) => setDestinationInput(e.target.value)}
+            placeholder="Enter destination..."
+            style={{
+              padding: "10px",
+              borderRadius: "8px",
+              border: "none",
+              outline: "none",
+              fontSize: "14px",
+              color: "#000",
+            }}
           />
-
-          <h3 className="font-bold text-lg mb-2">{selectedSpot.name}</h3>
-          
-          <div className="flex gap-2 mb-2">
-            {selectedSpot.category.slice(0, 2).map((cat) => (
-              <Badge key={cat} variant="secondary">
-                {cat}
-              </Badge>
-            ))}
-          </div>
-
-          <p className="text-sm text-muted-foreground mb-2">
-            {selectedSpot.municipality}
-          </p>
-
-          <p className="text-sm line-clamp-3 mb-3">{selectedSpot.description}</p>
-
-          <Button
-            variant="outline"
-            size="sm"
-            className="w-full"
-            onClick={() => {
-              window.open(
-                `https://www.google.com/maps/dir/?api=1&destination=${selectedSpot.latitude},${selectedSpot.longitude}`,
-                "_blank"
-              );
+          <button
+            onClick={handleSearch}
+            style={{
+              background: "#3b82f6",
+              color: "#fff",
+              padding: "10px",
+              border: "none",
+              borderRadius: "8px",
+              cursor: "pointer",
+              transition: "0.2s",
             }}
           >
-            <Navigation className="w-4 h-4 mr-2" />
-            Get Directions
-          </Button>
-        </Card>
-      )}
+            🔍 Search
+          </button>
+
+          {distance && duration && (
+            <div
+              style={{
+                background: "#334155",
+                borderRadius: "10px",
+                padding: "15px",
+                display: "flex",
+                flexDirection: "column",
+                gap: "6px",
+                marginTop: "10px",
+              }}
+            >
+              <div style={{ fontSize: "15px", fontWeight: 500 }}>
+                🚗 <strong>{distance.toFixed(2)} km</strong>
+              </div>
+              <div style={{ fontSize: "14px" }}>⏱️ {Math.round(duration)} min</div>
+              {recommendation && (
+                <div
+                  style={{
+                    marginTop: "8px",
+                    padding: "10px",
+                    background: "#1e3a8a",
+                    borderRadius: "8px",
+                    fontSize: "13px",
+                    lineHeight: "1.4",
+                  }}
+                >
+                  {recommendation}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Fixed: always visible button */}
+          <div style={{ marginTop: "20px" }}>
+            <button
+              onClick={() =>
+                navigator.geolocation.getCurrentPosition(
+                  (pos) => setPosition([pos.coords.latitude, pos.coords.longitude]),
+                  () => alert("Unable to get your location.")
+                )
+              }
+              style={{
+                background: "#f43f5e",
+                color: "#fff",
+                padding: "10px",
+                border: "none",
+                borderRadius: "8px",
+                cursor: "pointer",
+                width: "100%",
+                transition: "0.2s",
+              }}
+            >
+              📍 Use My Location
+            </button>
+          </div>
+        </div>
+
+        {/* Map Container */}
+        <div style={{ flex: 1 }}>
+          <MapContainer
+            center={position || [13.143, 123.735]}
+            zoom={10}
+            style={{ height: "100%", width: "100%" }}
+          >
+            <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+            {position && (
+              <Marker position={position} icon={markerIcon}>
+                <Popup>Your location</Popup>
+              </Marker>
+            )}
+            {destination && (
+              <Marker position={destination} icon={markerIcon}>
+                <Popup>Destination</Popup>
+              </Marker>
+            )}
+            {route.length > 0 && <Polyline positions={route} color="#38bdf8" weight={5} />}
+            {destination && <FlyToLocation coords={destination} />}
+          </MapContainer>
+        </div>
+      </div>
     </div>
   );
 };
