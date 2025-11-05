@@ -4,11 +4,13 @@ import Navbar from "@/components/Navbar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
-import { MapPin, Search, Star, Plus } from "lucide-react";
+import { MapPin, Search, Star, Building2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Session } from "@supabase/supabase-js";
+import AccommodationsSection from "@/components/AccommodationsSection";
 
 interface TouristSpot {
   id: string;
@@ -91,29 +93,6 @@ const Explore = () => {
     return colors[category] || "bg-muted";
   };
 
-  const addToItinerary = async (spot: TouristSpot, e: React.MouseEvent) => {
-    e.stopPropagation();
-    
-    if (!session?.user) {
-      toast.error("Please sign in to add to itinerary");
-      navigate("/auth");
-      return;
-    }
-
-    const { error } = await supabase.from("itineraries").insert([{
-      user_id: session.user.id,
-      name: `Quick Trip - ${spot.name}`,
-      selected_categories: spot.category,
-      spots: [spot] as any,
-    }]);
-
-    if (error) {
-      toast.error("Failed to add to itinerary");
-    } else {
-      toast.success("Added to your itinerary!");
-    }
-  };
-
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
@@ -124,106 +103,119 @@ const Explore = () => {
             Explore <span className="text-primary">Albay</span>
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Discover amazing destinations across the province
+            Discover amazing destinations and places to stay across the province
           </p>
         </div>
 
-        {/* Search and Filters */}
-        <div className="mb-8 space-y-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-            <Input
-              placeholder="Search destinations or municipalities..."
-              className="pl-10"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
+        <Tabs defaultValue="destinations" className="w-full">
+          <TabsList className="grid w-full grid-cols-2 mb-8">
+            <TabsTrigger value="destinations">
+              <MapPin className="w-4 h-4 mr-2" />
+              Tourist Destinations
+            </TabsTrigger>
+            <TabsTrigger value="accommodations">
+              <Building2 className="w-4 h-4 mr-2" />
+              Hotels & Accommodations
+            </TabsTrigger>
+          </TabsList>
 
-          <div className="flex flex-wrap gap-2">
-            <Button
-              variant={selectedCategory === null ? "default" : "outline"}
-              size="sm"
-              onClick={() => setSelectedCategory(null)}
-            >
-              All
-            </Button>
-            {categories.map((category) => (
-              <Button
-                key={category}
-                variant={selectedCategory === category ? "default" : "outline"}
-                size="sm"
-                onClick={() => setSelectedCategory(category)}
-              >
-                {category}
-              </Button>
-            ))}
-          </div>
-        </div>
+          {/* DESTINATIONS TAB */}
+          <TabsContent value="destinations" className="space-y-8">
+            {/* Search and Filters */}
+            <div className="space-y-4">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                <Input
+                  placeholder="Search destinations or municipalities..."
+                  className="pl-10"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
 
-        {/* Spots Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredSpots.length > 0 ? (
-            filteredSpots.map((spot) => (
-              <Card
-                key={spot.id}
-                className="overflow-hidden hover:shadow-xl transition-all hover:scale-105 cursor-pointer relative group"
-                onClick={() => navigate(`/spot/${spot.id}`)}
-              >
-                {spot.image_url && (
-                  <div className="h-48 overflow-hidden bg-muted">
-                    <img
-                      src={spot.image_url}
-                      alt={spot.name}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                )}
-                {/* <Button
-                  size="icon"
-                  className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity z-10 bg-background/90 backdrop-blur-sm hover:bg-background"
-                  onClick={(e) => addToItinerary(spot, e)}
-                  title="Add to itinerary"
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  variant={selectedCategory === null ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setSelectedCategory(null)}
                 >
-                  <Plus className="w-4 h-4" />
-                </Button> */}
-                <CardHeader>
-                  <CardTitle className="flex items-start justify-between gap-2">
-                    <span className="line-clamp-2">{spot.name}</span>
-                    {spot.rating > 0 && (
-                      <div className="flex items-center gap-1 text-yellow-500 text-sm">
-                        <Star className="w-4 h-4 fill-current" />
-                        {spot.rating}
+                  All
+                </Button>
+                {categories.map((category) => (
+                  <Button
+                    key={category}
+                    variant={selectedCategory === category ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setSelectedCategory(category)}
+                  >
+                    {category}
+                  </Button>
+                ))}
+              </div>
+            </div>
+
+            {/* Spots Grid */}
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredSpots.length > 0 ? (
+                filteredSpots.map((spot) => (
+                  <Card
+                    key={spot.id}
+                    className="overflow-hidden hover:shadow-xl transition-all hover:scale-105 cursor-pointer relative group"
+                    onClick={() => navigate(`/spot/${spot.id}`)}
+                  >
+                    {spot.image_url && (
+                      <div className="h-48 overflow-hidden bg-muted">
+                        <img
+                          src={spot.image_url}
+                          alt={spot.name}
+                          className="w-full h-full object-cover"
+                        />
                       </div>
                     )}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {spot.description && (
-                    <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
-                      {spot.description}
-                    </p>
-                  )}
-                  <div className="flex items-center gap-1 text-sm text-muted-foreground mb-3">
-                    <MapPin className="w-4 h-4" />
-                    <span className="line-clamp-1">{spot.location}</span>
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    {spot.category.map((cat) => (
-                      <Badge key={cat} className={getCategoryColor(cat)} variant="secondary">
-                        {cat}
-                      </Badge>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            ))
-          ) : (
-            <div className="col-span-full text-center py-12">
-              <p className="text-lg text-muted-foreground">No destinations found</p>
+                    <CardHeader>
+                      <CardTitle className="flex items-start justify-between gap-2">
+                        <span className="line-clamp-2">{spot.name}</span>
+                        {spot.rating > 0 && (
+                          <div className="flex items-center gap-1 text-yellow-500 text-sm">
+                            <Star className="w-4 h-4 fill-current" />
+                            {spot.rating}
+                          </div>
+                        )}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      {spot.description && (
+                        <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
+                          {spot.description}
+                        </p>
+                      )}
+                      <div className="flex items-center gap-1 text-sm text-muted-foreground mb-3">
+                        <MapPin className="w-4 h-4" />
+                        <span className="line-clamp-1">{spot.location}</span>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {spot.category.map((cat) => (
+                          <Badge key={cat} className={getCategoryColor(cat)} variant="secondary">
+                            {cat}
+                          </Badge>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))
+              ) : (
+                <div className="col-span-full text-center py-12">
+                  <p className="text-lg text-muted-foreground">No destinations found</p>
+                </div>
+              )}
             </div>
-          )}
-        </div>
+          </TabsContent>
+
+          {/* ACCOMMODATIONS TAB */}
+          <TabsContent value="accommodations">
+            <AccommodationsSection userId={session?.user?.id} />
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );

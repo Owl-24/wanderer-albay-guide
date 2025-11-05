@@ -8,6 +8,7 @@ import { Shield } from "lucide-react";
 import ManageSpots from "@/components/admin/ManageSpots";
 import ManageRestaurants from "@/components/admin/ManageRestaurants";
 import ManageEvents from "@/components/admin/ManageEvents";
+import ManageAccommodations from "@/components/admin/ManageAccommodations";
 import UserManagement from "@/components/admin/UserManagement";
 import Analytics from "@/components/admin/Analytics";
 import ReviewManagement from "@/components/admin/ReviewManagement";
@@ -87,15 +88,16 @@ const AdminDashboard = () => {
                   Admin <span className="text-primary">Dashboard</span>
                 </h1>
                 <p className="text-lg text-muted-foreground">
-                  Manage tourist destinations, restaurants, and events
+                  Manage tourist destinations, accommodations, restaurants, and events
                 </p>
               </div>
             </div>
           </div>
 
           <Tabs defaultValue="spots" className="w-full">
-            <TabsList className="grid w-full grid-cols-6 mb-8">
+            <TabsList className="grid w-full grid-cols-7 mb-8">
               <TabsTrigger value="spots">Tourist Spots</TabsTrigger>
+              <TabsTrigger value="accommodations">Accommodations</TabsTrigger>
               <TabsTrigger value="restaurants">Restaurants</TabsTrigger>
               <TabsTrigger value="events">Events</TabsTrigger>
               <TabsTrigger value="users">Users</TabsTrigger>
@@ -105,6 +107,10 @@ const AdminDashboard = () => {
 
             <TabsContent value="spots">
               <ManageSpots />
+            </TabsContent>
+
+            <TabsContent value="accommodations">
+              <ManageAccommodations />
             </TabsContent>
 
             <TabsContent value="restaurants">

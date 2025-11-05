@@ -14,6 +14,63 @@ export type Database = {
   }
   public: {
     Tables: {
+      accommodations: {
+        Row: {
+          amenities: string[] | null
+          category: string[] | null
+          contact_number: string | null
+          created_at: string
+          description: string | null
+          email: string | null
+          id: string
+          image_url: string | null
+          latitude: number | null
+          location: string
+          longitude: number | null
+          municipality: string | null
+          name: string
+          price_range: string | null
+          rating: number | null
+          updated_at: string
+        }
+        Insert: {
+          amenities?: string[] | null
+          category?: string[] | null
+          contact_number?: string | null
+          created_at?: string
+          description?: string | null
+          email?: string | null
+          id?: string
+          image_url?: string | null
+          latitude?: number | null
+          location: string
+          longitude?: number | null
+          municipality?: string | null
+          name: string
+          price_range?: string | null
+          rating?: number | null
+          updated_at?: string
+        }
+        Update: {
+          amenities?: string[] | null
+          category?: string[] | null
+          contact_number?: string | null
+          created_at?: string
+          description?: string | null
+          email?: string | null
+          id?: string
+          image_url?: string | null
+          latitude?: number | null
+          location?: string
+          longitude?: number | null
+          municipality?: string | null
+          name?: string
+          price_range?: string | null
+          rating?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       events: {
         Row: {
           created_at: string
