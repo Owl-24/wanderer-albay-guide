@@ -13,6 +13,9 @@ import { toast } from "sonner";
 import { MapPin, Trash2, Calendar, Sparkles, Edit, RefreshCw } from "lucide-react";
 import OnboardingModal from "@/components/OnboardingModal";
 import RecommendedSpots from "@/components/RecommendedSpots";
+import EventNotifications from "@/components/EventNotifications";
+import NearbyRestaurants from "@/components/NearbyRestaurants";
+import WeatherWidget from "@/components/WeatherWidget";
 
 interface Itinerary {
   id: string;
@@ -158,6 +161,14 @@ const Dashboard = () => {
             </div>
           </div>
 
+          {/* Weather & Safety */}
+          <WeatherWidget />
+
+          {/* Event Notifications */}
+          {profile?.user_preferences?.districts && (
+            <EventNotifications userDistricts={profile.user_preferences.districts} />
+          )}
+
           {/* Personalized Recommendations */}
           {profile?.user_preferences && (
             <div className="mb-12 animate-fade-in">
@@ -179,8 +190,19 @@ const Dashboard = () => {
                   Edit Preferences
                 </Button>
               </div>
-              <RecommendedSpots preferences={profile.user_preferences} />
+              <RecommendedSpots 
+                preferences={profile.user_preferences} 
+                userId={session?.user?.id}
+              />
             </div>
+          )}
+
+          {/* Nearby Restaurants */}
+          {profile?.user_preferences?.districts && profile?.user_preferences?.interests && (
+            <NearbyRestaurants 
+              userDistricts={profile.user_preferences.districts}
+              userInterests={profile.user_preferences.interests}
+            />
           )}
 
           {/* Quick Actions */}

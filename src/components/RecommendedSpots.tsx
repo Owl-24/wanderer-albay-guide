@@ -2,9 +2,11 @@ import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Star, Eye } from "lucide-react";
+import { MapPin, Star, Eye, Heart, CheckCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
+import { useFavorites } from "@/hooks/useFavorites";
+import { Session } from "@supabase/supabase-js";
 
 interface TouristSpot {
   id: string;
@@ -26,12 +28,14 @@ interface UserPreferences {
 
 interface RecommendedSpotsProps {
   preferences: UserPreferences;
+  userId?: string;
 }
 
-const RecommendedSpots = ({ preferences }: RecommendedSpotsProps) => {
+const RecommendedSpots = ({ preferences, userId }: RecommendedSpotsProps) => {
   const [spots, setSpots] = useState<TouristSpot[]>([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const { favorites, visited, toggleFavorite, markAsVisited, isFavorite, isVisited } = useFavorites(userId);
 
   useEffect(() => {
     fetchRecommendedSpots();
@@ -185,10 +189,35 @@ const RecommendedSpots = ({ preferences }: RecommendedSpotsProps) => {
             <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
               {spot.description}
             </p>
-            <Button variant="outline" size="sm" className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-              <Eye className="w-4 h-4 mr-2" />
-              View Details
-            </Button>
+            <div className="flex gap-2">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="flex-1"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigate(`/spot/${spot.id}`);
+                }}
+              >
+                <Eye className="w-4 h-4 mr-2" />
+                View Details
+              </Button>
+              <Button
+                variant={isFavorite(spot.id) ? "default" : "outline"}
+                size="sm"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  toggleFavorite(spot.id);
+                }}
+              >
+                <Heart className={`w-4 h-4 ${isFavorite(spot.id) ? 'fill-current' : ''}`} />
+              </Button>
+              {isVisited(spot.id) && (
+                <Button variant="outline" size="sm" disabled>
+                  <CheckCircle className="w-4 h-4 text-green-500" />
+                </Button>
+              )}
+            </div>
           </CardContent>
         </Card>
       ))}

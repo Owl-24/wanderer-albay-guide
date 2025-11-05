@@ -35,6 +35,16 @@ const EmailVerification = () => {
       return;
     }
 
+    // Rate limiting - prevent spam
+    const lastResend = localStorage.getItem('lastResendTime');
+    if (lastResend) {
+      const timeDiff = Date.now() - parseInt(lastResend);
+      if (timeDiff < 60000) { // 1 minute
+        toast.error("Please wait before requesting another email");
+        return;
+      }
+    }
+
     setIsResending(true);
     const { error } = await supabase.auth.resend({
       type: 'signup',
@@ -46,6 +56,7 @@ const EmailVerification = () => {
     if (error) {
       toast.error(error.message);
     } else {
+      localStorage.setItem('lastResendTime', Date.now().toString());
       toast.success("Verification email sent! Check your inbox.");
     }
   };
