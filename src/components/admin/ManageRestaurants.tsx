@@ -293,6 +293,14 @@ const ManageRestaurants = () => {
                       "Cafe",
                       "Casual",
                       "Buffet",
+                      "Bread and Pastries",
+                      "Resto",
+                      "Bar",
+                      "Breakfast",
+                      "Beverages",
+                      "Drinks",
+                      "Grill",
+                      "Snacks",
                     ].map((type) => (
                       <SelectItem key={type} value={type}>
                         <div className="flex items-center gap-2">

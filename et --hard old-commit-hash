@@ -1,0 +1,216 @@
+[33mcommit 6de55a7c9e2e5c1ebcc3e96ec42b22301619fd16[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Author: gpt-engineer-app[bot] <159125892+gpt-engineer-app[bot]@users.noreply.github.com>
+Date:   Wed Nov 5 11:17:13 2025 +0000
+
+    Add accommodations to explore
+
+[33mcommit fe1ee1fc231fb19ba3647ecfd420288526250b0c[m
+Author: gpt-engineer-app[bot] <159125892+gpt-engineer-app[bot]@users.noreply.github.com>
+Date:   Wed Nov 5 11:10:06 2025 +0000
+
+    Add event notifications
+
+[33mcommit 68d10b432829276900dfc5111a7234af03989f38[m
+Merge: 2b6bff4 24e0124
+Author: RdashJay <arjayconradez16@gmail.com>
+Date:   Wed Nov 5 18:26:22 2025 +0800
+
+    Merge pull request #5 from zh-ein/main
+    
+    add maps
+
+[33mcommit 24e0124b76b20960edf5ca5e59616bff3a8d4bec[m
+Merge: 938792e 2b6bff4
+Author: zh-ein <zh.einpai@gmail.com>
+Date:   Wed Nov 5 15:58:38 2025 +0800
+
+    add map
+
+[33mcommit 938792ed810c812fc9dc680d98a4a4ec6841cba1[m
+Author: zh-ein <zh.einpai@gmail.com>
+Date:   Wed Nov 5 15:47:16 2025 +0800
+
+    add map
+
+[33mcommit 2b6bff4446fd8585044a22b976b99360c318e7fe[m
+Merge: 7e75dd9 6c8017c
+Author: RdashJay <arjayconradez16@gmail.com>
+Date:   Wed Nov 5 05:49:49 2025 +0800
+
+    Merge pull request #4 from Owl-24/main
+    
+    Added more categories and .env file security
+
+[33mcommit 6c8017c8910bfe239702ea4b31b6549f86e84184[m
+Author: Jude <shanejudellanetaballon24@gmail.com>
+Date:   Tue Nov 4 19:32:28 2025 +0800
+
+    fixed filtering
+
+[33mcommit 7e75dd991ab2f459b19e3583b9fe830e7a6b477d[m
+Author: gpt-engineer-app[bot] <159125892+gpt-engineer-app[bot]@users.noreply.github.com>
+Date:   Tue Nov 4 04:27:22 2025 +0000
+
+    Add personalized onboarding flow
+
+[33mcommit 9e9635e9481e5d0fb9606a01b0464aa9f449f7e8[m
+Author: gpt-engineer-app[bot] <159125892+gpt-engineer-app[bot]@users.noreply.github.com>
+Date:   Tue Nov 4 04:01:18 2025 +0000
+
+    Approve user preferences migration
+
+[33mcommit 1126a971afa7ba9338af8bb123248b839a409902[m
+Author: Jude <shanejudellanetaballon24@gmail.com>
+Date:   Mon Nov 3 19:25:54 2025 +0800
+
+    added categories
+
+[33mcommit 7e2f13527704571228abc1b79ac617136b481676[m
+Author: Jude <shanejudellanetaballon24@gmail.com>
+Date:   Mon Nov 3 16:18:26 2025 +0800
+
+    Added Categories
+
+[33mcommit 975e298d07efec41e1e2288c2b9019cb8d0bc509[m
+Author: Jude <shanejudellanetaballon24@gmail.com>
+Date:   Mon Nov 3 15:41:16 2025 +0800
+
+    added .env to gitignore
+
+[33mcommit 09d362e71516c5dc56f6beb8f3994120323dcb63[m
+Author: gpt-engineer-app[bot] <159125892+gpt-engineer-app[bot]@users.noreply.github.com>
+Date:   Sun Nov 2 13:22:07 2025 +0000
+
+    Approve database migrations
+
+[33mcommit e60765c1554cf7123140921ccd00a1192cca6763[m
+Merge: 2e82540 ba2189d
+Author: RdashJay <arjayconradez16@gmail.com>
+Date:   Thu Oct 30 09:20:26 2025 +0800
+
+    Merge pull request #2 from zh-ein/main
+    
+    add/edit bugs
+
+[33mcommit ba2189d9ce73d20373eb38e380775606e809dbb1[m
+Merge: 22f9119 2e82540
+Author: zh-ein <zh.einpai@gmail.com>
+Date:   Thu Oct 30 08:52:16 2025 +0800
+
+    Merge branch 'RdashJay:main' into main
+
+[33mcommit 2e82540a10a52f4aa6e79685b9d5f06e36c4326d[m
+Merge: 9d3b49a 3048a66
+Author: RdashJay <arjayconradez16@gmail.com>
+Date:   Thu Oct 30 08:51:19 2025 +0800
+
+    Merge pull request #3 from git-nard/main
+    
+    emergency
+
+[33mcommit 3048a66c067083914d462d012baab0d5bf56bde0[m
+Author: git-nard <yonardhilig@gmail.com>
+Date:   Thu Oct 30 08:40:41 2025 +0800
+
+    emergency
+
+[33mcommit 22f9119aff8c725932e0d7f4e451fc9acd2c9f2b[m
+Author: zh-ein <zh.einpai@gmail.com>
+Date:   Thu Oct 30 08:11:32 2025 +0800
+
+    add/edit bugs
+
+[33mcommit 8b2e6fd02b35720ab006d9a2b11031a1e6356d91[m
+Merge: d9f2301 9d3b49a
+Author: git-nard <yonardhilig@gmail.com>
+Date:   Wed Oct 29 23:46:18 2025 +0800
+
+    Merge branch 'main' of https://github.com/RdashJay/wanderer-albay-guide
+    git push origin maingit push origin main# the commit.
+
+[33mcommit d9f2301f67da85925f5d90bb561617dfaa4dc706[m
+Author: git-nard <yonardhilig@gmail.com>
+Date:   Wed Oct 29 23:42:04 2025 +0800
+
+    WIP: map changes before branch switch
+
+[33mcommit 9d3b49a275d21ab96a454efacdd605d05b60ebfc[m
+Merge: 571a8d2 65727ab
+Author: RdashJay <arjayconradez16@gmail.com>
+Date:   Wed Oct 29 23:21:17 2025 +0800
+
+    Merge pull request #1 from zh-ein/main
+    
+    add/fix auth, category and alert
+
+[33mcommit 65727ab2e710ae370949aed0bead278b83a3505b[m
+Author: zh-ein <zh.einpai@gmail.com>
+Date:   Wed Oct 29 23:11:00 2025 +0800
+
+    add/fix auth, category and alert
+
+[33mcommit 571a8d246cfae5093679b8a250453b69f4321b68[m
+Author: gpt-engineer-app[bot] <159125892+gpt-engineer-app[bot]@users.noreply.github.com>
+Date:   Fri Oct 24 01:16:29 2025 +0000
+
+    Add functional map
+
+[33mcommit 94d4dc01b837feb1cb8b59ca31ffff14a9080859[m
+Author: gpt-engineer-app[bot] <159125892+gpt-engineer-app[bot]@users.noreply.github.com>
+Date:   Fri Oct 24 01:12:12 2025 +0000
+
+    Add profile picture and bio
+
+[33mcommit 150c14f9e03f7341aa322f2d387e60a5a7144df3[m
+Author: gpt-engineer-app[bot] <159125892+gpt-engineer-app[bot]@users.noreply.github.com>
+Date:   Thu Oct 23 09:24:26 2025 +0000
+
+    Add interest selection functionality
+
+[33mcommit 187d943cd601beb04cb2c7077bdf71b99479922e[m
+Author: gpt-engineer-app[bot] <159125892+gpt-engineer-app[bot]@users.noreply.github.com>
+Date:   Thu Oct 23 09:21:36 2025 +0000
+
+    Add functionality to "Why Choose Wanderer?" section
+
+[33mcommit 82428b312d1940b3fefc871b8e89748fce12a784[m
+Author: gpt-engineer-app[bot] <159125892+gpt-engineer-app[bot]@users.noreply.github.com>
+Date:   Thu Oct 23 09:18:40 2025 +0000
+
+    Add itinerary choices
+
+[33mcommit 4562ee84ca94d3c6561487736319b872e0297b25[m
+Author: gpt-engineer-app[bot] <159125892+gpt-engineer-app[bot]@users.noreply.github.com>
+Date:   Tue Oct 21 00:57:03 2025 +0000
+
+    Fix: Admin panel visibility and image replacement
+
+[33mcommit 015a583231ecd54fdd2bbd07467d5379316abcdb[m
+Author: gpt-engineer-app[bot] <159125892+gpt-engineer-app[bot]@users.noreply.github.com>
+Date:   Tue Oct 21 00:46:31 2025 +0000
+
+    Fix: Make admin panel visible
+
+[33mcommit 6fd909349730898b5a7421de7d68f8b7ad67e595[m
+Author: gpt-engineer-app[bot] <159125892+gpt-engineer-app[bot]@users.noreply.github.com>
+Date:   Mon Oct 20 00:52:35 2025 +0000
+
+    Refactor: Update system requirements
+
+[33mcommit 5dba29187d5cac387fb0b0a071246b62384233d7[m
+Author: gpt-engineer-app[bot] <159125892+gpt-engineer-app[bot]@users.noreply.github.com>
+Date:   Sun Oct 19 04:13:24 2025 +0000
+
+    feat: Add Admin Dashboard and Remove "Powered by AI"
+
+[33mcommit 8a0350903d4d19ee5be97a0ee031a8cd9127489b[m
+Author: gpt-engineer-app[bot] <159125892+gpt-engineer-app[bot]@users.noreply.github.com>
+Date:   Sat Oct 18 06:11:03 2025 +0000
+
+    Add initial project setup
+
+[33mcommit b7a6bdea680ef39af47c1425ada579a75c86b157[m
+Author: gpt-engineer-app[bot] <159125892+gpt-engineer-app[bot]@users.noreply.github.com>
+Date:   Sat Oct 18 06:06:18 2025 +0000
+
+    [skip lovable] Use tech stack vite_react_shadcn_ts_20250728_minor

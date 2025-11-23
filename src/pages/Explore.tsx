@@ -79,18 +79,61 @@ const Explore = () => {
     setFilteredSpots(filtered);
   };
 
-  const categories = ["Nature", "Culture", "Adventure", "Food", "Beach", "Heritage"];
+  const categories = [
+    "Nature",
+    "Culture",
+    "Adventure",
+    "Food",
+    "Beach",
+    "Heritage",
+    "Waterfalls",
+    "Resorts",
+    "Local Cuisine",
+    "Eco-tourism",
+    "Parks",
+    "ATV Rides",
+    "Sunset Views",
+    "Hiking",
+    "Volcanoes",
+    "Crafts",
+    "Street Food",
+    "Island Hopping",
+    "Museums",
+    "Churches",
+    "Snorkeling",
+    "Cafes",
+    "Ziplines",
+  ];
 
+  // ⭐ AUTO COLOR GENERATOR (ONLY CHANGE YOU REQUESTED)
   const getCategoryColor = (category: string) => {
-    const colors: Record<string, string> = {
-      Nature: "bg-secondary text-secondary-foreground",
-      Culture: "bg-accent text-accent-foreground",
-      Adventure: "bg-primary text-primary-foreground",
-      Food: "bg-orange-500 text-white",
-      Beach: "bg-blue-500 text-white",
-      Heritage: "bg-purple-500 text-white",
-    };
-    return colors[category] || "bg-muted";
+    const palette = [
+      "bg-red-500 text-white",
+      "bg-blue-500 text-white",
+      "bg-green-500 text-white",
+      "bg-yellow-500 text-white",
+      "bg-purple-500 text-white",
+      "bg-indigo-500 text-white",
+      "bg-pink-500 text-white",
+      "bg-teal-500 text-white",
+      "bg-orange-500 text-white",
+      "bg-cyan-500 text-white",
+      "bg-lime-500 text-white",
+      "bg-emerald-500 text-white",
+      "bg-rose-500 text-white",
+      "bg-violet-500 text-white",
+      "bg-amber-500 text-white",
+      "bg-sky-500 text-white",
+      "bg-fuchsia-500 text-white",
+    ];
+
+    let hash = 0;
+    for (let i = 0; i < category.length; i++) {
+      hash = category.charCodeAt(i) + ((hash << 5) - hash);
+    }
+
+    const index = Math.abs(hash) % palette.length;
+    return palette[index];
   };
 
   return (
