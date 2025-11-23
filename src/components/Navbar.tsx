@@ -1,18 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import {
-  Plane,
-  User,
-  LogOut,
-  Map,
-  Sparkles,
-  Menu,
-  X,
-  Shield,
-  Cloud,
-  PhoneCall,
-} from "lucide-react";
+import { Plane, User, LogOut, Map, Sparkles, Menu, X, Shield, Cloud, PhoneCall } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Session } from "@supabase/supabase-js";
 import { toast } from "sonner";
@@ -23,42 +12,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+
+// ✅ Import AlertDialog and Alert
 import {
-  Dialog,
-  DialogTrigger,
-  DialogContent,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
-import { Alert } from "@/components/ui/alert";
-
-/* ------------------ WEATHER DIALOG COMPONENT ------------------ */
-const WeatherDialog = () => {
-  const [isWeatherOpen, setIsWeatherOpen] = useState(false);
-
-  return (
-    <Dialog open={isWeatherOpen} onOpenChange={setIsWeatherOpen}>
-      <DialogTrigger asChild>
-        <button
-          className="text-sm font-medium hover:text-primary transition-colors flex items-center gap-1"
-          onClick={() => setIsWeatherOpen(!isWeatherOpen)}
-        >
-          <Cloud className="w-4 h-4" />
-          Weather
-        </button>
-      </DialogTrigger>
-
-      {/* ✅ Closes automatically on outside click or Esc key */}
-      <DialogContent>
-        <VisuallyHidden>
-          <DialogTitle>Current Weather</DialogTitle>
-        </VisuallyHidden>
-        <Alert />
-      </DialogContent>
-    </Dialog>
-  );
-};
-/* ------------------------------------------------------------- */
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
+} from "@/components/ui/alert-dialog";
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -92,7 +52,9 @@ const Navbar = () => {
       .select("role")
       .eq("user_id", userId);
 
-    if (error) console.error("Error checking admin role:", error);
+    if (error) {
+      console.error("Error checking admin role:", error);
+    }
 
     const hasAdmin = data?.some((role) => role.role === "admin");
     setIsAdmin(hasAdmin || false);
@@ -128,7 +90,15 @@ const Navbar = () => {
             </Link>
 
             {/* ✅ WEATHER BUTTON HERE */}
-            <WeatherDialog />
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <button className="text-sm font-medium hover:text-primary transition-colors flex items-center gap-1">
+                  <Cloud className="w-4 h-4" />
+                  Weather
+                </button>
+              </AlertDialogTrigger>
+              <AlertDialogContent />
+            </AlertDialog>
 
             {session && (
               <Link
@@ -150,13 +120,13 @@ const Navbar = () => {
           </div>
 
           {/* ✅ EMERGENCY HOTLINE BUTTON */}
-          <Link
-            to="/emergency-hotlines"
-            className="text-sm font-medium hover:text-primary transition-colors flex items-center gap-1"
-          >
-            <PhoneCall className="w-4 h-4" />
-            Emergency
-          </Link>
+              <Link
+                to="/emergency-hotlines"
+                className="text-sm font-medium hover:text-primary transition-colors flex items-center gap-1"
+              >
+                <PhoneCall className="w-4 h-4" />
+                Emergency
+              </Link>
 
           {/* === THEME TOGGLE === */}
           <ThemeToggle />
@@ -220,7 +190,15 @@ const Navbar = () => {
             </Link>
 
             {/* ✅ WEATHER button inside mobile menu too */}
-            <WeatherDialog />
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <button className="block w-full text-left px-4 py-2 text-sm font-medium hover:bg-muted rounded-lg flex items-center gap-2">
+                  <Cloud className="w-4 h-4" />
+                  Weather
+                </button>
+              </AlertDialogTrigger>
+              <AlertDialogContent />
+            </AlertDialog>
 
             {session && (
               <>
@@ -253,15 +231,15 @@ const Navbar = () => {
               <Map className="w-4 h-4 inline mr-2" />
               Map
             </Link>
-
+            
             {/* ✅ EMERGENCY HOTLINE BUTTON */}
-            <Link
-              to="/emergency-hotlines"
-              className="text-sm font-medium hover:text-primary transition-colors flex items-center gap-1"
-            >
-              <PhoneCall className="w-4 h-4" />
-              Emergency
-            </Link>
+              <Link
+                to="/emergency-hotlines"
+                className="text-sm font-medium hover:text-primary transition-colors flex items-center gap-1"
+              >
+                <PhoneCall className="w-4 h-4" />
+                Emergency
+              </Link>
 
             {session && (
               <Button onClick={handleLogout} variant="outline" className="w-full">

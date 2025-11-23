@@ -28,42 +28,27 @@ const Explore = () => {
   const [spots, setSpots] = useState<TouristSpot[]>([]);
   const [filteredSpots, setFilteredSpots] = useState<TouristSpot[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [session, setSession] = useState<Session | null>(null);
 
   useEffect(() => {
     fetchSpots();
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-    });
-
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-    });
-
+    supabase.auth.getSession().then(({ data: { session } }) => setSession(session));
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => setSession(session));
     return () => subscription.unsubscribe();
   }, []);
 
   useEffect(() => {
     filterSpots();
-  }, [searchQuery, selectedCategory, spots]);
+  }, [searchQuery, selectedCategories, spots]);
 
   const fetchSpots = async () => {
-    const { data, error } = await supabase
-      .from("tourist_spots")
-      .select("*")
-      .order("name");
-
-    if (!error && data) {
-      setSpots(data);
-    }
+    const { data, error } = await supabase.from("tourist_spots").select("*").order("name");
+    if (!error && data) setSpots(data);
   };
 
   const filterSpots = () => {
     let filtered = spots;
-
     if (searchQuery) {
       filtered = filtered.filter(
         (spot) =>
@@ -71,75 +56,58 @@ const Explore = () => {
           spot.municipality?.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
-
-    if (selectedCategory) {
-      filtered = filtered.filter((spot) => spot.category.includes(selectedCategory));
+    if (selectedCategories.length > 0) {
+      filtered = filtered.filter((spot) => selectedCategories.every((cat) => spot.category.includes(cat)));
     }
-
     setFilteredSpots(filtered);
   };
 
   const categories = [
-    "Nature",
-    "Culture",
-    "Adventure",
-    "Food",
-    "Beach",
-    "Heritage",
-    "Waterfalls",
-    "Resorts",
-    "Local Cuisine",
-    "Eco-tourism",
-    "Parks",
-    "ATV Rides",
-    "Sunset Views",
-    "Hiking",
-    "Volcanoes",
-    "Crafts",
-    "Street Food",
-    "Island Hopping",
-    "Museums",
-    "Churches",
-    "Snorkeling",
-    "Cafes",
-    "Ziplines",
+    "Nature", "Culture", "Adventure", "Food", "Beach", "Heritage",
+    "Religious Sites", "Waterfalls", "Mountains", "Museums", "Parks",
+    "Festivals", "Shopping", "Eco-tourism",
   ];
 
-  // ⭐ AUTO COLOR GENERATOR (ONLY CHANGE YOU REQUESTED)
   const getCategoryColor = (category: string) => {
-    const palette = [
-      "bg-red-500 text-white",
-      "bg-blue-500 text-white",
-      "bg-green-500 text-white",
-      "bg-yellow-500 text-white",
-      "bg-purple-500 text-white",
-      "bg-indigo-500 text-white",
-      "bg-pink-500 text-white",
-      "bg-teal-500 text-white",
-      "bg-orange-500 text-white",
-      "bg-cyan-500 text-white",
-      "bg-lime-500 text-white",
-      "bg-emerald-500 text-white",
-      "bg-rose-500 text-white",
-      "bg-violet-500 text-white",
-      "bg-amber-500 text-white",
-      "bg-sky-500 text-white",
-      "bg-fuchsia-500 text-white",
-    ];
+    const colors: Record<string, string> = {
+      Nature: "bg-green-500 text-white",
+      Culture: "bg-yellow-500 text-white",
+      Adventure: "bg-red-500 text-white",
+      Food: "bg-orange-500 text-white",
+      Beach: "bg-blue-500 text-white",
+      Heritage: "bg-purple-500 text-white",
+      "Religious Sites": "bg-indigo-500 text-white",
+      Waterfalls: "bg-cyan-500 text-white",
+      Mountains: "bg-emerald-600 text-white",
+      Museums: "bg-pink-500 text-white",
+      Parks: "bg-lime-500 text-white",
+      Festivals: "bg-fuchsia-500 text-white",
+      Shopping: "bg-rose-500 text-white",
+      "Eco-tourism": "bg-teal-500 text-white",
+    };
+    return colors[category] || "bg-muted text-muted-foreground";
+  };
 
-    let hash = 0;
-    for (let i = 0; i < category.length; i++) {
-      hash = category.charCodeAt(i) + ((hash << 5) - hash);
+  const addToItinerary = async (spot: TouristSpot, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!session?.user) {
+      toast.error("Please sign in to add to itinerary");
+      navigate("/auth");
+      return;
     }
-
-    const index = Math.abs(hash) % palette.length;
-    return palette[index];
+    const { error } = await supabase.from("itineraries").insert([{
+      user_id: session.user.id,
+      name: `Quick Trip - ${spot.name}`,
+      selected_categories: spot.category,
+      spots: [spot] as any,
+    }]);
+    if (error) toast.error("Failed to add to itinerary");
+    else toast.success("Added to your itinerary!");
   };
 
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-
       <div className="container py-12">
         <div className="mb-12 text-center animate-fade-in">
           <h1 className="text-4xl md:text-5xl font-bold mb-4">
@@ -153,12 +121,10 @@ const Explore = () => {
         <Tabs defaultValue="destinations" className="w-full">
           <TabsList className="grid w-full grid-cols-2 mb-8">
             <TabsTrigger value="destinations">
-              <MapPin className="w-4 h-4 mr-2" />
-              Tourist Destinations
+              <MapPin className="w-4 h-4 mr-2" /> Tourist Destinations
             </TabsTrigger>
             <TabsTrigger value="accommodations">
-              <Building2 className="w-4 h-4 mr-2" />
-              Hotels & Accommodations
+              <Building2 className="w-4 h-4 mr-2" /> Hotels & Accommodations
             </TabsTrigger>
           </TabsList>
 
@@ -178,22 +144,29 @@ const Explore = () => {
 
               <div className="flex flex-wrap gap-2">
                 <Button
-                  variant={selectedCategory === null ? "default" : "outline"}
+                  variant={selectedCategories.length === 0 ? "default" : "outline"}
                   size="sm"
-                  onClick={() => setSelectedCategory(null)}
+                  onClick={() => setSelectedCategories([])}
                 >
                   All
                 </Button>
-                {categories.map((category) => (
-                  <Button
-                    key={category}
-                    variant={selectedCategory === category ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setSelectedCategory(category)}
-                  >
-                    {category}
-                  </Button>
-                ))}
+                {categories.map((category) => {
+                  const isSelected = selectedCategories.includes(category);
+                  return (
+                    <Button
+                      key={category}
+                      variant={isSelected ? "default" : "outline"}
+                      size="sm"
+                      onClick={() =>
+                        setSelectedCategories((prev) =>
+                          isSelected ? prev.filter((c) => c !== category) : [...prev, category]
+                        )
+                      }
+                    >
+                      {category}
+                    </Button>
+                  );
+                })}
               </div>
             </div>
 
@@ -208,11 +181,7 @@ const Explore = () => {
                   >
                     {spot.image_url && (
                       <div className="h-48 overflow-hidden bg-muted">
-                        <img
-                          src={spot.image_url}
-                          alt={spot.name}
-                          className="w-full h-full object-cover"
-                        />
+                        <img src={spot.image_url} alt={spot.name} className="w-full h-full object-cover" />
                       </div>
                     )}
                     <CardHeader>
@@ -228,9 +197,7 @@ const Explore = () => {
                     </CardHeader>
                     <CardContent>
                       {spot.description && (
-                        <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
-                          {spot.description}
-                        </p>
+                        <p className="text-sm text-muted-foreground mb-3 line-clamp-2">{spot.description}</p>
                       )}
                       <div className="flex items-center gap-1 text-sm text-muted-foreground mb-3">
                         <MapPin className="w-4 h-4" />
@@ -238,9 +205,7 @@ const Explore = () => {
                       </div>
                       <div className="flex flex-wrap gap-2">
                         {spot.category.map((cat) => (
-                          <Badge key={cat} className={getCategoryColor(cat)} variant="secondary">
-                            {cat}
-                          </Badge>
+                          <Badge key={cat} className={getCategoryColor(cat)} variant="secondary">{cat}</Badge>
                         ))}
                       </div>
                     </CardContent>
